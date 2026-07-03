@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="AB Crew"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>Airblue Crew</title>
+<style>
+:root{
+  --red:#D4002B; --red2:#ff1a3e; --red-dim:#3a0a12;
+  --bg:#0a0a0f; --bg2:#13131a; --bg3:#1c1c26; --bg4:#242432;
+  --card:#181820; --card2:#20202c;
+  --text:#f0f0f8; --text2:#9090aa; --text3:#55556a;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --gold:#f5c842; --gold-dim:#2a2208;
+  --green:#22c55e; --green-dim:#0a2a14;
+  --blue:#3b82f6; --blue-dim:#0a1a3a;
+  --purple:#a855f7; --purple-dim:#1a0a2a;
+  --radius:16px; --radius-sm:10px; --radius-xs:7px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overscroll-behavior:none;}
+body{overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:max(env(safe-area-inset-top),14px) 16px 12px;
+  background:var(--bg);border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+}
+.app-logo{display:flex;align-items:center;gap:9px;}
+.app-logo-mark{width:34px;height:34px;border-radius:9px;background:var(--red);display:flex;align-items:center;justify-content:center;}
+.app-logo-mark span{color:#fff;font-size:11px;font-weight:800;letter-spacing:0.5px;}
+.app-logo-text{font-size:17px;font-weight:700;color:var(--text);}
+.app-logo-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.header-time{text-align:right;}
+.header-clock{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);}
+.header-date{font-size:11px;color:var(--text2);}
+
+/* ── TABS ── */
+.tab-bar{
+  display:flex;background:var(--bg);
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;overflow-x:auto;
+  padding:0 8px;gap:2px;
+  scrollbar-width:none;
+}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab{
+  flex-shrink:0;padding:10px 14px;font-size:12px;font-weight:600;
+  color:var(--text3);border:none;background:none;cursor:pointer;
+  border-bottom:2.5px solid transparent;transition:all 0.2s;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.tab.active{color:var(--red);border-bottom-color:var(--red);}
+.tab-icon{font-size:15px;}
+
+/* ── SCREENS ── */
+.screen{display:none;flex:1;overflow-y:auto;padding:16px;padding-bottom:max(env(safe-area-inset-bottom),20px);}
+.screen.active{display:block;}
+.screen::-webkit-scrollbar{display:none;}
+
+/* ── SECTION HEADER ── */
+.sec-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;margin-top:20px;}
+.sec-title:first-child{margin-top:0;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.card-row{display:flex;gap:10px;margin-bottom:12px;}
+.card-half{flex:1;}
+
+/* ── CLOCKS ── */
+.clock-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.clock-box{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;}
+.clock-lbl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.clock-val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);line-height:1;}
+.clock-ampm{font-size:14px;font-weight:600;color:var(--text2);margin-left:2px;}
+.clock-sub{font-size:11px;color:var(--text2);margin-top:6px;}
+.clock-tz{font-size:13px;font-weight:800;color:var(--red);margin-top:3px;}
+
+/* region bar */
+.region-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.region-row label{font-size:13px;color:var(--text2);white-space:nowrap;}
+.region-row select{flex:1;font-size:14px;font-weight:600;padding:10px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:var(--card2);color:var(--text);cursor:pointer;}
+.badge-auto{font-size:11px;font-weight:700;background:var(--green-dim);color:var(--green);padding:4px 9px;border-radius:20px;white-space:nowrap;}
+
+/* ── CALENDAR ── */
+.cal-wrap{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--red);}
+.cal-head-title{font-size:16px;font-weight:700;color:#fff;}
+.cal-nav-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px;line-height:1;opacity:0.9;}
+.cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);background:var(--card2);padding:4px 8px 0;}
+.cal-dow-cell{text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:6px 0;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 8px 10px;gap:2px;}
+.cal-day{text-align:center;font-size:15px;font-weight:500;color:var(--text);padding:9px 0;cursor:pointer;border-radius:8px;transition:background 0.15s;}
+.cal-day:hover{background:var(--bg4);}
+.cal-day.today{color:var(--gold);font-weight:800;}
+.cal-day.selected{background:var(--red);color:#fff!important;font-weight:700;}
+.cal-day.empty{cursor:default;}
+.cal-day.empty:hover{background:none;}
+.cal-day.past{color:var(--text3);}
+
+/* ── TIME DROPDOWNS ── */
+.time-row{display:flex;gap:10px;margin-bottom:14px;}
+.time-row>div{flex:1;}
+.field-lbl{font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.sel-big{width:100%;font-size:20px;font-weight:700;padding:13px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:var(--card2);color:var(--text);cursor:pointer;text-align:center;font-variant-numeric:tabular-nums;}
+
+/* ── RESULT PILLS ── */
+.result-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.result-pill{background:var(--red-dim);border:1.5px solid rgba(212,0,43,0.35);border-radius:var(--radius-sm);padding:14px 10px;text-align:center;}
+.result-pill-lbl{font-size:11px;font-weight:700;color:var(--red2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.result-pill-val{font-size:26px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;}
+.result-pill-ampm{font-size:15px;font-weight:600;color:var(--text2);margin-left:2px;}
+.result-pill-date{font-size:11px;color:var(--text2);margin-top:5px;}
+
+/* dep summary bar */
+.dep-summary{display:none;background:var(--bg4);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px;}
+.dep-summary.show{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.dep-summary-left{font-size:13px;color:var(--text2);}
+.dep-summary-val{font-size:17px;font-weight:700;color:var(--text);}
+
+/* countdown dual bars */
+.countdown-row{margin-top:14px;}
+.countdown-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:6px;}
+.countdown-mid{font-size:14px;font-weight:700;color:var(--text);}
+.dual-bar-wrap{display:flex;flex-direction:column;gap:6px;}
+.bar-row{display:flex;align-items:center;gap:8px;}
+.bar-row-lbl{font-size:11px;font-weight:700;width:52px;flex-shrink:0;text-align:right;}
+.bar-row-lbl.pickup-lbl{color:var(--gold);}
+.bar-row-lbl.dep-lbl{color:var(--red2);}
+.cbar-bg{flex:1;background:var(--bg4);border-radius:20px;height:9px;overflow:hidden;border:0.5px solid var(--border);}
+.cbar{height:9px;border-radius:20px;transition:width 1s linear;}
+.cbar.pickup{background:linear-gradient(90deg,#b8860b,var(--gold));}
+.cbar.departure{background:linear-gradient(90deg,var(--red),var(--red2));}
+.bar-row-time{font-size:11px;font-weight:700;width:44px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.bar-row-time.pickup-time{color:var(--gold);}
+.bar-row-time.dep-time{color:var(--red2);}
+
+/* info note */
+.info-note{display:none;margin-top:12px;background:var(--blue-dim);border:0.5px solid rgba(59,130,246,0.3);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:#90c0ff;line-height:1.6;gap:9px;align-items:flex-start;}
+.info-note.show{display:flex;}
+.info-note .ni{font-size:18px;flex-shrink:0;}
+
+/* divider */
+.divider{height:0.5px;background:var(--border);margin:16px 0;}
+
+/* ── ROSTER ── */
+.flight-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;position:relative;}
+.flight-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.flight-route{font-size:20px;font-weight:800;color:var(--text);letter-spacing:0.5px;}
+.flight-date-badge{font-size:11px;font-weight:700;background:var(--red-dim);color:var(--red2);padding:4px 9px;border-radius:20px;}
+.flight-meta{display:flex;gap:14px;font-size:13px;color:var(--text2);}
+.flight-meta span{display:flex;align-items:center;gap:4px;}
+.flight-pickup{font-size:12px;color:var(--green);font-weight:600;margin-top:6px;display:flex;align-items:center;gap:5px;}
+.flight-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px;line-height:1;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty-text{font-size:15px;font-weight:500;}
+.empty-sub{font-size:13px;margin-top:6px;}
+.countdown-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:8px;}
+.countdown-badge.soon{background:rgba(245,200,66,0.15);color:var(--gold);}
+.countdown-badge.today{background:var(--red-dim);color:var(--red2);}
+.countdown-badge.future{background:var(--bg4);color:var(--text2);}
+
+/* ── CURRENCY ── */
+.curr-from{background:var(--card2);border-radius:var(--radius-sm);border:0.5px solid var(--border2);padding:14px;margin-bottom:10px;}
+.curr-input-row{display:flex;gap:10px;align-items:flex-end;}
+.curr-input{flex:1;font-size:28px;font-weight:700;padding:10px 12px;background:var(--card);border:0.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-variant-numeric:tabular-nums;width:100%;}
+.curr-select{font-size:15px;font-weight:700;padding:10px 12px;background:var(--card);border:0.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);cursor:pointer;min-width:90px;}
+.curr-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.curr-box{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;}
+.curr-box-flag{font-size:22px;margin-bottom:6px;}
+.curr-box-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.curr-box-val{font-size:22px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;}
+.curr-box-name{font-size:11px;color:var(--text2);margin-top:3px;}
+.curr-update{font-size:11px;color:var(--text3);text-align:center;margin-top:10px;}
+.curr-note{font-size:12px;color:var(--text3);text-align:center;margin-top:6px;}
+
+/* ── WEATHER ── */
+.weather-dest-select{width:100%;font-size:16px;font-weight:600;padding:12px 14px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:var(--card2);color:var(--text);cursor:pointer;margin-bottom:14px;}
+.weather-card-main{background:linear-gradient(135deg,#1a1a2e,#16213e);border:0.5px solid rgba(59,130,246,0.25);border-radius:var(--radius);padding:22px;margin-bottom:12px;text-align:center;}
+.weather-city{font-size:13px;font-weight:700;color:#90b8f0;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.weather-icon{font-size:56px;margin:10px 0;}
+.weather-temp{font-size:52px;font-weight:800;color:var(--text);line-height:1;}
+.weather-desc{font-size:16px;color:var(--text2);margin-top:6px;text-transform:capitalize;}
+.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.weather-detail{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+.wd-icon{font-size:20px;margin-bottom:4px;}
+.wd-val{font-size:15px;font-weight:700;color:var(--text);}
+.wd-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.weather-note{font-size:12px;color:var(--text3);text-align:center;}
+
+/* ── REST CALC ── */
+.rest-result{background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:var(--radius-sm);padding:14px;margin-top:14px;display:none;}
+.rest-result.show{display:block;}
+.rest-result-lbl{font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.rest-result-val{font-size:22px;font-weight:800;color:var(--text);}
+.rest-result-sub{font-size:13px;color:var(--text2);margin-top:4px;}
+.rest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.rest-box{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+.rest-box-lbl{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.rest-box-val{font-size:18px;font-weight:700;color:var(--text);}
+
+/* ── CHECKLIST ── */
+.check-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:0.5px solid var(--border);cursor:pointer;}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:24px;height:24px;border-radius:7px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.check-box.checked{background:var(--green);border-color:var(--green);}
+.check-box.checked::after{content:'✓';color:#fff;font-size:14px;font-weight:800;}
+.check-item-text{font-size:15px;color:var(--text);flex:1;}
+.check-item-text.checked{color:var(--text3);text-decoration:line-through;}
+.check-item-cat{font-size:11px;font-weight:700;color:var(--text3);}
+.check-progress{background:var(--bg4);border-radius:20px;height:6px;margin-bottom:14px;overflow:hidden;}
+.check-progress-bar{height:6px;background:var(--green);border-radius:20px;transition:width 0.4s ease;}
+.check-reset-btn{width:100%;padding:12px;background:var(--card2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;}
+.check-count{font-size:13px;color:var(--text2);margin-bottom:8px;}
+.check-count span{color:var(--green);font-weight:700;}
+
+/* ── ROUTES ── */
+.route-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;}
+.route-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.route-cities{font-size:18px;font-weight:800;letter-spacing:0.5px;}
+.route-duration{font-size:12px;font-weight:700;background:var(--bg4);color:var(--text2);padding:4px 9px;border-radius:20px;}
+.route-meta{font-size:13px;color:var(--text2);}
+.route-code{font-size:11px;font-weight:700;color:var(--text3);margin-top:4px;}
+
+/* ── DAYS OFF ── */
+.daysoff-big{text-align:center;padding:24px;background:linear-gradient(135deg,var(--purple-dim),var(--bg3));border:0.5px solid rgba(168,85,247,0.25);border-radius:var(--radius);margin-bottom:14px;}
+.daysoff-num{font-size:64px;font-weight:900;color:var(--purple);line-height:1;}
+.daysoff-lbl{font-size:14px;color:var(--text2);margin-top:6px;}
+.daysoff-date{font-size:13px;color:var(--purple);font-weight:600;margin-top:8px;}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;border:none;transition:opacity 0.15s;}
+.btn:active{opacity:0.8;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-ghost{background:var(--card2);color:var(--text2);border:0.5px solid var(--border2);}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;padding:20px 16px max(env(safe-area-inset-bottom),20px);width:100%;max-height:85vh;overflow-y:auto;}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.modal-close{float:right;background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;margin-top:-2px;}
+.input-field{width:100%;font-size:16px;font-weight:500;padding:13px 14px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:var(--card2);color:var(--text);margin-bottom:10px;}
+.input-field::placeholder{color:var(--text3);}
+
+/* ── MISC ── */
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin-right:4px;}
+.tag-red{background:var(--red-dim);color:var(--red2);}
+.tag-gold{background:var(--gold-dim);color:var(--gold);}
+.tag-green{background:var(--green-dim);color:var(--green);}
+.tag-blue{background:var(--blue-dim);color:#90c0ff;}
+select option{background:var(--bg2);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="app-logo">
+    <div class="app-logo-mark"><span>AB</span></div>
+    <div>
+      <div class="app-logo-text">Airblue Crew</div>
+      <div class="app-logo-sub">Cabin Crew Companion</div>
+    </div>
+  </div>
+  <div class="header-time">
+    <div class="header-clock" id="hdrClock">--:--</div>
+    <div class="header-date" id="hdrDate">--</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <button class="tab active" data-tab="time"><span class="tab-icon">🕐</span>Time</button>
+  <button class="tab" data-tab="roster"><span class="tab-icon">📋</span>Roster</button>
+  <button class="tab" data-tab="currency"><span class="tab-icon">💱</span>Currency</button>
+  <button class="tab" data-tab="weather"><span class="tab-icon">🌤</span>Weather</button>
+  <button class="tab" data-tab="rest"><span class="tab-icon">😴</span>Rest</button>
+  <button class="tab" data-tab="checklist"><span class="tab-icon">✅</span>Checklist</button>
+  <button class="tab" data-tab="routes"><span class="tab-icon">✈️</span>Routes</button>
+</nav>
+
+<!-- ════════════════════════════════════════
+     SCREEN 1 — TIME & PICKUP
+════════════════════════════════════════ -->
+<section class="screen active" id="screen-time">
+
+  <div class="region-row">
+    <label>📍</label>
+    <select id="regionSelect">
+      <option value="Asia/Karachi">🇵🇰 Pakistan (PKT)</option>
+      <option value="Asia/Riyadh">🇸🇦 Saudi Arabia (AST)</option>
+      <option value="Asia/Dubai">🇦🇪 UAE (GST)</option>
+      <option value="Asia/Baku">🇦🇿 Baku (AZT)</option>
+    </select>
+    <span class="badge-auto" id="localBadge">Auto</span>
+  </div>
+
+  <div class="clock-grid">
+    <div class="clock-box">
+      <div class="clock-lbl">12-hour</div>
+      <div class="clock-val"><span id="c12h">--</span>:<span id="c12m">--</span>:<span id="c12s" style="font-size:16px">--</span><span class="clock-ampm" id="c12ap"> --</span></div>
+      <div class="clock-sub" id="c12date">--</div>
+      <div class="clock-tz" id="c12tz">--</div>
+    </div>
+    <div class="clock-box">
+      <div class="clock-lbl">24-hour</div>
+      <div class="clock-val"><span id="c24h">--</span>:<span id="c24m">--</span>:<span id="c24s" style="font-size:16px">--</span></div>
+      <div class="clock-sub" id="c24date">--</div>
+      <div class="clock-tz" id="c24tz">--</div>
+    </div>
+  </div>
+
+  <div class="sec-title">✈️ Flight Departure</div>
+  <div class="card">
+    <div class="field-lbl" style="margin-bottom:8px">📅 Departure Date</div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <button class="cal-nav-btn" id="calPrev">‹</button>
+        <span class="cal-head-title" id="calTitle">--</span>
+        <button class="cal-nav-btn" id="calNext">›</button>
+      </div>
+      <div class="cal-dow-row" id="calDow"></div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="time-row">
+      <div><span class="field-lbl">Hour (00–23)</span><select class="sel-big" id="depHour"></select></div>
+      <div><span class="field-lbl">Minute</span><select class="sel-big" id="depMin"></select></div>
+    </div>
+
+    <div class="dep-summary" id="depSummary">
+      <div><div class="dep-summary-left">Departure</div><div class="dep-summary-val" id="depSummaryVal">--</div></div>
+      <div style="text-align:right"><div class="dep-summary-left">24h / 12h</div><div class="dep-summary-val" id="depSummaryTime">--</div></div>
+    </div>
+
+    <div id="resultBlock" style="display:none">
+      <div class="divider"></div>
+      <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px;">🚌 Pickup Time <span style="font-size:12px;font-weight:500;color:var(--text3)">(3h 30m before departure)</span></div>
+      <div class="result-pills">
+        <div class="result-pill">
+          <div class="result-pill-lbl">24-hour</div>
+          <div class="result-pill-val" id="pick24">--</div>
+          <div class="result-pill-date" id="pick24date">--</div>
+        </div>
+        <div class="result-pill">
+          <div class="result-pill-lbl">12-hour</div>
+          <div class="result-pill-val" id="pick12">--</div>
+          <div class="result-pill-date" id="pick12date">--</div>
+        </div>
+      </div>
+      <div class="countdown-row">
+        <div class="countdown-meta"><span style="font-size:11px;font-weight:700;color:var(--text3)">NOW</span><span class="countdown-mid" id="cdText">--</span><span style="font-size:11px;font-weight:700;color:var(--text3)">DEP</span></div>
+        <div class="dual-bar-wrap">
+          <div class="bar-row">
+            <span class="bar-row-lbl pickup-lbl">🚌 Pickup</span>
+            <div class="cbar-bg"><div class="cbar pickup" id="cdPickupBar" style="width:0%"></div></div>
+            <span class="bar-row-time pickup-time" id="cdPickupTime">--</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-row-lbl dep-lbl">✈ Dep</span>
+            <div class="cbar-bg"><div class="cbar departure" id="cdDepBar" style="width:0%"></div></div>
+            <span class="bar-row-time dep-time" id="cdDepTime">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-note" id="docNote">
+      <span class="ni">📎</span>
+      <span>Be ready by pickup time with: Passport · ID card · Airblue ID · Uniform · Briefing pack</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 2 — ROSTER
+════════════════════════════════════════ -->
+<section class="screen" id="screen-roster">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <div class="sec-title" style="margin:0">Upcoming Flights</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" style="width:auto;padding:9px 14px;font-size:13px;background:var(--gold-dim);color:var(--gold);border:0.5px solid rgba(245,200,66,0.3)" id="scanRosterBtn">📸 Scan Roster</button>
+      <button class="btn btn-red" style="width:auto;padding:9px 14px;font-size:13px" id="addFlightBtn">+ Add</button>
+    </div>
+  </div>
+  <div id="scanResult" style="display:none;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;">
+    <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;">🤖 AI Roster Scanner</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.6;">Take a photo or upload a screenshot of your printed roster. The AI will read it and extract all your flights automatically.</div>
+    <input type="file" id="rosterImageInput" accept="image/*" capture="environment" style="display:none"/>
+    <button class="btn btn-red" style="margin-bottom:8px" id="uploadRosterBtn">📷 Take Photo / Upload Roster</button>
+    <div id="scanStatus" style="font-size:13px;color:var(--text2);text-align:center;min-height:20px;"></div>
+    <div id="scanPreview" style="margin-top:10px;display:none;"><img id="scanImg" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover;"/></div>
+    <button class="btn" style="margin-top:10px;background:var(--bg4);color:var(--text2);border:0.5px solid var(--border2);display:none" id="closeScanBtn">✕ Close Scanner</button>
+  </div>
+  <div id="rosterList"></div>
+
+  <div class="sec-title">Days Off Countdown</div>
+  <div class="daysoff-big" id="daysoffBox">
+    <div class="daysoff-num" id="daysoffNum">—</div>
+    <div class="daysoff-lbl">days until next day off</div>
+    <div class="daysoff-date" id="daysoffDate">Set your days off below</div>
+  </div>
+  <div class="card">
+    <span class="field-lbl">Next Day Off Date</span>
+    <input type="date" class="input-field" id="daysoffInput" style="margin-top:6px"/>
+    <button class="btn btn-red" style="margin-top:10px" id="saveDaysOff">Save</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 3 — CURRENCY
+════════════════════════════════════════ -->
+<section class="screen" id="screen-currency">
+  <div class="sec-title">Currency Converter</div>
+  <div class="card">
+    <div class="field-lbl">Amount</div>
+    <div class="curr-input-row" style="margin-top:6px">
+      <input type="number" class="curr-input" id="currAmount" value="100" inputmode="decimal"/>
+      <select class="curr-select" id="currFrom">
+        <option value="PKR">🇵🇰 PKR</option>
+        <option value="SAR">🇸🇦 SAR</option>
+        <option value="AED">🇦🇪 AED</option>
+        <option value="AZN">🇦🇿 AZN</option>
+        <option value="USD">🇺🇸 USD</option>
+        <option value="GBP">🇬🇧 GBP</option>
+      </select>
+    </div>
+  </div>
+  <div class="curr-result-grid" id="currResults"></div>
+  <div class="curr-update" id="currUpdateNote">Rates updated: built-in approximate rates</div>
+  <div class="curr-note">💡 Rates are approximate. Verify at airport exchange before transacting.</div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 4 — WEATHER
+════════════════════════════════════════ -->
+<section class="screen" id="screen-weather">
+  <div class="sec-title">Destination Weather</div>
+  <select class="weather-dest-select" id="weatherDest">
+    <option value="Karachi">🇵🇰 Karachi, Pakistan</option>
+    <option value="Islamabad">🇵🇰 Islamabad, Pakistan</option>
+    <option value="Lahore">🇵🇰 Lahore, Pakistan</option>
+    <option value="Dubai">🇦🇪 Dubai, UAE</option>
+    <option value="AbuDhabi">🇦🇪 Abu Dhabi, UAE</option>
+    <option value="Riyadh">🇸🇦 Riyadh, Saudi Arabia</option>
+    <option value="Jeddah">🇸🇦 Jeddah, Saudi Arabia</option>
+    <option value="Baku">🇦🇿 Baku, Azerbaijan</option>
+    <option value="Muscat">🇴🇲 Muscat, Oman</option>
+  </select>
+  <div id="weatherDisplay"></div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 5 — REST CALCULATOR
+════════════════════════════════════════ -->
+<section class="screen" id="screen-rest">
+  <div class="sec-title">Crew Rest Calculator</div>
+  <div class="card">
+    <div class="field-lbl">Layover — Arrived at hotel</div>
+    <div class="time-row" style="margin-top:6px">
+      <div><span class="field-lbl">Hour</span><select class="sel-big" id="restArrH"></select></div>
+      <div><span class="field-lbl">Min</span><select class="sel-big" id="restArrM"></select></div>
+    </div>
+    <div class="field-lbl" style="margin-top:6px">Pickup time for next flight</div>
+    <div class="time-row" style="margin-top:6px">
+      <div><span class="field-lbl">Hour</span><select class="sel-big" id="restPickH"></select></div>
+      <div><span class="field-lbl">Min</span><select class="sel-big" id="restPickM"></select></div>
+    </div>
+    <div class="field-lbl" style="margin-top:6px">Mins to settle in / get ready</div>
+    <input type="number" class="input-field" id="restBuffer" value="30" inputmode="numeric" style="margin-top:6px"/>
+    <button class="btn btn-red" style="margin-top:10px" id="calcRestBtn">Calculate Rest</button>
+  </div>
+  <div class="rest-result" id="restResult">
+    <div class="rest-result-lbl">Available Rest Window</div>
+    <div class="rest-result-val" id="restDuration">--</div>
+    <div class="rest-result-sub" id="restSub">--</div>
+    <div class="rest-grid">
+      <div class="rest-box"><div class="rest-box-lbl">Sleep from</div><div class="rest-box-val" id="restFrom">--</div></div>
+      <div class="rest-box"><div class="rest-box-lbl">Wake up by</div><div class="rest-box-val" id="restTo">--</div></div>
+    </div>
+    <div class="info-note show" style="margin-top:12px;background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25);color:#90e8a0;">
+      <span class="ni">💤</span>
+      <span id="restAdvice">Advice will appear here.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 6 — CHECKLIST
+════════════════════════════════════════ -->
+<section class="screen" id="screen-checklist">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="sec-title" style="margin:0">Pre-Flight Checklist</div>
+  </div>
+  <div class="check-count">Completed: <span id="checkCount">0</span> / <span id="checkTotal">0</span></div>
+  <div class="check-progress"><div class="check-progress-bar" id="checkBar" style="width:0%"></div></div>
+  <div class="card" id="checklistItems"></div>
+  <button class="check-reset-btn" id="resetChecklist">↺ Reset All</button>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 7 — ROUTES
+════════════════════════════════════════ -->
+<section class="screen" id="screen-routes">
+  <div class="sec-title">Airblue Routes</div>
+  <div id="routesList"></div>
+  <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:10px;">Route info for reference only. Check airblue ops for current schedules.</div>
+</section>
+
+<!-- ════════════════════════════════════════
+     ADD FLIGHT MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="flightModal">
+  <div class="modal">
+    <div class="modal-title">Add Flight <button class="modal-close" id="closeModal">✕</button></div>
+    <div class="cal-wrap" id="modalCal">
+      <div class="cal-head">
+        <button class="cal-nav-btn" id="mCalPrev">‹</button>
+        <span class="cal-head-title" id="mCalTitle">--</span>
+        <button class="cal-nav-btn" id="mCalNext">›</button>
+      </div>
+      <div class="cal-dow-row" id="mCalDow"></div>
+      <div class="cal-days" id="mCalDays"></div>
+    </div>
+    <input class="input-field" id="mFrom" placeholder="From (e.g. KHI)"/>
+    <input class="input-field" id="mTo" placeholder="To (e.g. DXB)"/>
+    <div style="display:flex;gap:10px">
+      <input class="input-field" id="mDepTime" placeholder="Dep 24h (e.g. 14:30)" style="flex:1"/>
+      <input class="input-field" id="mFltNum" placeholder="Flight # (e.g. PA201)" style="flex:1"/>
+    </div>
+    <button class="btn btn-red" id="saveFlightBtn">Save Flight</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// GLOBALS & CONSTANTS
+// ════════════════════════════════════════
+const ZONES={"Asia/Karachi":"PKT","Asia/Riyadh":"AST","Asia/Dubai":"GST","Asia/Baku":"AZT"};
+const MONTHS_FULL=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MONTHS_S=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DAYS_S=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+let tz="Asia/Karachi";
+function pad(n){return String(n).padStart(2,'0');}
+
+// ════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('screen-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='weather') renderWeather();
+    if(t.dataset.tab==='currency') renderCurrency();
+    if(t.dataset.tab==='roster') renderRoster();
+  });
+});
+
+// ════════════════════════════════════════
+// CLOCKS
+// ════════════════════════════════════════
+function getZT(zone){
+  const now=new Date();
+  const ts=now.toLocaleString("en-US",{timeZone:zone,hour:'numeric',minute:'numeric',second:'numeric',hour12:false});
+  const p=ts.split(":").map(Number);
+  const h=p[0]===24?0:p[0],m=p[1],s=p[2];
+  const ds=now.toLocaleString("en-US",{timeZone:zone,weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  return{h,m,s,ds};
+}
+function updateClocks(){
+  const t=getZT(tz);
+  const h12=t.h%12===0?12:t.h%12,ap=t.h<12?"AM":"PM";
+  document.getElementById("c12h").textContent=pad(h12);
+  document.getElementById("c12m").textContent=pad(t.m);
+  document.getElementById("c12s").textContent=pad(t.s);
+  document.getElementById("c12ap").textContent=" "+ap;
+  document.getElementById("c12date").textContent=t.ds;
+  document.getElementById("c12tz").textContent=ZONES[tz]||tz;
+  document.getElementById("c24h").textContent=pad(t.h);
+  document.getElementById("c24m").textContent=pad(t.m);
+  document.getElementById("c24s").textContent=pad(t.s);
+  document.getElementById("c24date").textContent=t.ds;
+  document.getElementById("c24tz").textContent=ZONES[tz]||tz;
+  // header
+  document.getElementById("hdrClock").textContent=pad(t.h)+":"+pad(t.m);
+  document.getElementById("hdrDate").textContent=t.ds;
+  updateCountdown();
+}
+document.getElementById("regionSelect").addEventListener("change",function(){
+  tz=this.value;
+  document.getElementById("localBadge").textContent=ZONES[tz]||"--";
+  updateClocks();
+});
+(function(){
+  try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone;if(ZONES[z]){document.getElementById("regionSelect").value=z;tz=z;document.getElementById("localBadge").textContent="Local";}}catch(e){}
+})();
+
+// ════════════════════════════════════════
+// CALENDAR (Time screen)
+// ════════════════════════════════════════
+let calY,calM,selDate=null;
+function initCal(){
+  const n=new Date();calY=n.getFullYear();calM=n.getMonth();
+  document.getElementById("calDow").innerHTML=DAYS_S.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('');
+  renderCal();
+}
+function renderCal(){
+  document.getElementById("calTitle").textContent=MONTHS_FULL[calM]+" "+calY;
+  const g=document.getElementById("calDays");g.innerHTML='';
+  const first=new Date(calY,calM,1).getDay(),dim=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=dim;d++){
+    const e=document.createElement('div');e.className='cal-day';e.textContent=d;
+    const isTod=d===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear();
+    const isPast=new Date(calY,calM,d)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    if(isTod)e.classList.add('today');
+    if(isPast&&!isTod)e.classList.add('past');
+    if(selDate&&d===selDate.d&&calM===selDate.mo&&calY===selDate.y)e.classList.add('selected');
+    e.addEventListener('click',()=>{selDate={d,mo:calM,y:calY};renderCal();calcPickup();});
+    g.appendChild(e);
+  }
+}
+document.getElementById("calPrev").addEventListener("click",()=>{calM--;if(calM<0){calM=11;calY--;}renderCal();});
+document.getElementById("calNext").addEventListener("click",()=>{calM++;if(calM>11){calM=0;calY++;}renderCal();});
+
+// ════════════════════════════════════════
+// TIME DROPDOWNS
+// ════════════════════════════════════════
+function buildDropdowns(){
+  const h=document.getElementById("depHour"),m=document.getElementById("depMin");
+  h.innerHTML='<option value="">Hour</option>';
+  m.innerHTML='<option value="">Min</option>';
+  for(let i=0;i<24;i++)h.innerHTML+=`<option value="${i}">${pad(i)}</option>`;
+  for(let i=0;i<60;i+=5)m.innerHTML+=`<option value="${i}">${pad(i)}</option>`;
+  // rest dropdowns
+  ['restArrH','restPickH'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='<option value="">Hour</option>';for(let i=0;i<24;i++)s.innerHTML+=`<option value="${i}">${pad(i)}</option>`;});
+  ['restArrM','restPickM'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='<option value="">Min</option>';for(let i=0;i<60;i+=5)s.innerHTML+=`<option value="${i}">${pad(i)}</option>`;});
+}
+["depHour","depMin"].forEach(id=>document.getElementById(id).addEventListener("change",calcPickup));
+
+// ════════════════════════════════════════
+// PICKUP CALC
+// ════════════════════════════════════════
+function calcPickup(){
+  const hR=parseInt(document.getElementById("depHour").value);
+  const mR=parseInt(document.getElementById("depMin").value);
+  if(isNaN(hR)||isNaN(mR)||!selDate)return;
+  const dH12=hR%12===0?12:hR%12,dAP=hR<12?"AM":"PM";
+  const doStr=new Date(selDate.y,selDate.mo,selDate.d);
+  const dateLabel=`${DAYS_S[doStr.getDay()]}, ${selDate.d} ${MONTHS_S[selDate.mo]} ${selDate.y}`;
+  document.getElementById("depSummaryVal").textContent=dateLabel;
+  document.getElementById("depSummaryTime").textContent=`${pad(hR)}:${pad(mR)} / ${pad(dH12)}:${pad(mR)} ${dAP}`;
+  document.getElementById("depSummary").classList.add("show");
+  let pickM=hR*60+mR-210,offset=0;
+  if(pickM<0){pickM+=1440;offset=-1;}
+  const pH=Math.floor(pickM/60)%24,pM=pickM%60;
+  const pH12=pH%12===0?12:pH%12,pAP=pH<12?"AM":"PM";
+  const pDo=new Date(selDate.y,selDate.mo,selDate.d+offset);
+  const pDl=`${DAYS_S[pDo.getDay()]}, ${pDo.getDate()} ${MONTHS_S[pDo.getMonth()]} ${pDo.getFullYear()}`;
+  document.getElementById("pick24").textContent=`${pad(pH)}:${pad(pM)}`;
+  document.getElementById("pick12").innerHTML=`${pad(pH12)}:${pad(pM)}<span class="result-pill-ampm"> ${pAP}</span>`;
+  document.getElementById("pick24date").textContent=pDl;
+  document.getElementById("pick12date").textContent=pDl;
+  document.getElementById("resultBlock").style.display="block";
+  document.getElementById("docNote").classList.add("show");
+  updateCountdown();
+}
+function fmtCountdown(ms){
+  if(ms<=0)return"Now";
+  const totalM=Math.floor(ms/60000);
+  const d=Math.floor(totalM/1440),h=Math.floor((totalM%1440)/60),m=totalM%60;
+  if(d>0)return`${d}d ${h}h`;
+  if(h>0)return`${h}h ${m}m`;
+  return`${m}m`;
+}
+function updateCountdown(){
+  const hR=parseInt(document.getElementById("depHour").value);
+  const mR=parseInt(document.getElementById("depMin").value);
+  if(isNaN(hR)||isNaN(mR)||!selDate)return;
+  const dep=new Date(selDate.y,selDate.mo,selDate.d,hR,mR,0);
+  const now=new Date();
+  const diffDep=dep-now;
+  // pickup = 3.5h before dep
+  const pickup=new Date(dep.getTime()-210*60000);
+  const diffPickup=pickup-now;
+  if(diffDep<0){
+    document.getElementById("cdText").textContent="Departed";
+    document.getElementById("cdDepBar").style.width="100%";
+    document.getElementById("cdPickupBar").style.width="100%";
+    document.getElementById("cdDepTime").textContent="✓";
+    document.getElementById("cdPickupTime").textContent="✓";
+    return;
+  }
+  // text in middle: time to departure
+  const depTotalM=Math.floor(diffDep/60000);
+  const d2=Math.floor(depTotalM/1440),h2=Math.floor((depTotalM%1440)/60),m2=depTotalM%60;
+  document.getElementById("cdText").textContent=d2>0?`${d2}d ${h2}h to dep`:`${h2}h ${m2}m to dep`;
+  // span = 7 days in ms for bar scale
+  const SPAN=7*24*60*60*1000;
+  // departure bar
+  const depPct=Math.max(2,Math.min(98,Math.round((1-(diffDep/SPAN))*100)));
+  document.getElementById("cdDepBar").style.width=depPct+"%";
+  document.getElementById("cdDepTime").textContent=fmtCountdown(diffDep);
+  // pickup bar
+  if(diffPickup>0){
+    const pickPct=Math.max(2,Math.min(98,Math.round((1-(diffPickup/SPAN))*100)));
+    document.getElementById("cdPickupBar").style.width=pickPct+"%";
+    document.getElementById("cdPickupTime").textContent=fmtCountdown(diffPickup);
+  }else{
+    document.getElementById("cdPickupBar").style.width="98%";
+    document.getElementById("cdPickupTime").textContent="Past";
+  }
+}
+
+// ════════════════════════════════════════
+// ROSTER
+// ════════════════════════════════════════
+function getFlights(){try{return JSON.parse(localStorage.getItem('abFlights')||'[]');}catch{return[];}}
+function saveFlights(f){localStorage.setItem('abFlights',JSON.stringify(f));}
+
+function renderRoster(){
+  const flights=getFlights().sort((a,b)=>new Date(a.date+' '+a.dep)-new Date(b.date+' '+b.dep));
+  const el=document.getElementById("rosterList");
+  if(!flights.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No flights saved yet</div><div class="empty-sub">Tap "+ Add Flight" to add your roster</div></div>`;
+    return;
+  }
+  el.innerHTML='';
+  const now=new Date();
+  flights.forEach((f,i)=>{
+    const dep=new Date(f.date+' '+f.dep);
+    const diffMs=dep-now;
+    const diffH=Math.floor(diffMs/3600000);
+    const diffD=Math.floor(diffMs/86400000);
+    let badge='',badgeClass='future';
+    if(diffMs<0){badge='Departed';badgeClass='future';}
+    else if(diffD===0){badge=diffH+'h away';badgeClass='today';}
+    else if(diffD<=2){badge=diffD+'d away';badgeClass='soon';}
+    else{badge=diffD+'d away';badgeClass='future';}
+    // pickup
+    let pickStr='';
+    if(diffMs>0){
+      const [hh,mm]=f.dep.split(':').map(Number);
+      let pm=hh*60+mm-210,po=0;if(pm<0){pm+=1440;po=-1;}
+      const ph=Math.floor(pm/60)%24,pmin=pm%60;
+      const pdo=new Date(f.date);pdo.setDate(pdo.getDate()+po);
+      pickStr=`Pickup: ${pad(ph)}:${pad(pmin)} on ${DAYS_S[pdo.getDay()]} ${pdo.getDate()} ${MONTHS_S[pdo.getMonth()]}`;
+    }
+    const card=document.createElement('div');
+    card.className='flight-card';
+    const [dY,dM,dD]=f.date.split('-');
+    const dObj=new Date(f.date);
+    card.innerHTML=`
+      <div class="flight-card-top">
+        <div class="flight-route">${f.from} → ${f.to}</div>
+        <span class="flight-date-badge">${DAYS_S[dObj.getDay()]} ${parseInt(dD)} ${MONTHS_S[parseInt(dM)-1]}</span>
+      </div>
+      <div class="flight-meta">
+        <span>✈ ${f.flightNum||'--'}</span>
+        <span>🕐 ${f.dep}</span>
+        ${badge?`<span class="countdown-badge ${badgeClass}">${badge}</span>`:''}
+      </div>
+      ${pickStr?`<div class="flight-pickup">🚌 ${pickStr}</div>`:''}
+      <button class="flight-del" data-i="${i}">🗑</button>`;
+    el.appendChild(card);
+  });
+  el.querySelectorAll('.flight-del').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const fs=getFlights();fs.splice(parseInt(b.dataset.i),1);saveFlights(fs);renderRoster();
+    });
+  });
+  // days off
+  const dof=localStorage.getItem('abDaysOff');
+  if(dof){
+    const d=new Date(dof),now2=new Date();
+    const diff=Math.ceil((d-now2)/(86400000));
+    document.getElementById("daysoffNum").textContent=diff>0?diff:'🎉';
+    document.getElementById("daysoffDate").textContent=diff>0?`${DAYS_S[d.getDay()]} ${d.getDate()} ${MONTHS_S[d.getMonth()]} ${d.getFullYear()}`:'Day off is today!';
+  }
+}
+
+// modal calendar
+let mCalY,mCalM,mSelDate=null;
+function initModalCal(){
+  const n=new Date();mCalY=n.getFullYear();mCalM=n.getMonth();
+  document.getElementById("mCalDow").innerHTML=DAYS_S.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('');
+  renderModalCal();
+}
+function renderModalCal(){
+  document.getElementById("mCalTitle").textContent=MONTHS_FULL[mCalM]+" "+mCalY;
+  const g=document.getElementById("mCalDays");g.innerHTML='';
+  const first=new Date(mCalY,mCalM,1).getDay(),dim=new Date(mCalY,mCalM+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=dim;d++){
+    const e=document.createElement('div');e.className='cal-day';e.textContent=d;
+    if(d===today.getDate()&&mCalM===today.getMonth()&&mCalY===today.getFullYear())e.classList.add('today');
+    if(mSelDate&&d===mSelDate.d&&mCalM===mSelDate.mo&&mCalY===mSelDate.y)e.classList.add('selected');
+    e.addEventListener('click',()=>{mSelDate={d,mo:mCalM,y:mCalY};renderModalCal();});
+    g.appendChild(e);
+  }
+}
+document.getElementById("mCalPrev").addEventListener("click",()=>{mCalM--;if(mCalM<0){mCalM=11;mCalY--;}renderModalCal();});
+document.getElementById("mCalNext").addEventListener("click",()=>{mCalM++;if(mCalM>11){mCalM=0;mCalY++;}renderModalCal();});
+document.getElementById("addFlightBtn").addEventListener("click",()=>{
+  mSelDate=null;initModalCal();
+  document.getElementById("mFrom").value='';document.getElementById("mTo").value='';
+  document.getElementById("mDepTime").value='';document.getElementById("mFltNum").value='';
+  document.getElementById("flightModal").classList.add("open");
+});
+document.getElementById("closeModal").addEventListener("click",()=>document.getElementById("flightModal").classList.remove("open"));
+document.getElementById("flightModal").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+document.getElementById("saveFlightBtn").addEventListener("click",()=>{
+  if(!mSelDate){alert("Please select a date");return;}
+  const from=document.getElementById("mFrom").value.trim().toUpperCase();
+  const to=document.getElementById("mTo").value.trim().toUpperCase();
+  const dep=document.getElementById("mDepTime").value.trim();
+  const fn=document.getElementById("mFltNum").value.trim();
+  if(!from||!to||!dep){alert("Please fill From, To, and Departure time");return;}
+  const dateStr=`${mSelDate.y}-${pad(mSelDate.mo+1)}-${pad(mSelDate.d)}`;
+  const flights=getFlights();
+  flights.push({from,to,dep,flightNum:fn,date:dateStr});
+  saveFlights(flights);
+  document.getElementById("flightModal").classList.remove("open");
+  renderRoster();
+});
+document.getElementById("saveDaysOff").addEventListener("click",()=>{
+  const v=document.getElementById("daysoffInput").value;
+  if(v){localStorage.setItem('abDaysOff',v);renderRoster();}
+});
+
+// ════════════════════════════════════════
+// CURRENCY — Live rates via open.er-api.com (free, no key)
+// ════════════════════════════════════════
+const CURR_META={
+  PKR:{flag:'🇵🇰',name:'Pakistani Rupee',symbol:'Rs'},
+  SAR:{flag:'🇸🇦',name:'Saudi Riyal',symbol:'SR'},
+  AED:{flag:'🇦🇪',name:'UAE Dirham',symbol:'AED'},
+  AZN:{flag:'🇦🇿',name:'Azerbaijani Manat',symbol:'₼'},
+  USD:{flag:'🇺🇸',name:'US Dollar',symbol:'$'},
+  GBP:{flag:'🇬🇧',name:'British Pound',symbol:'£'},
+};
+// Fallback rates (used if offline)
+const FALLBACK_RATES={PKR:278,SAR:3.75,AED:3.67,AZN:1.70,USD:1,GBP:0.79};
+let liveRates=null, ratesTimestamp=null, ratesFetching=false;
+
+async function fetchLiveRates(){
+  if(ratesFetching)return;
+  // Use cached if under 1 hour old
+  try{
+    const cached=localStorage.getItem('abRates');
+    if(cached){const p=JSON.parse(cached);if(Date.now()-p.ts<3600000){liveRates=p.rates;ratesTimestamp=new Date(p.ts);renderCurrency();return;}}
+  }catch(e){}
+  ratesFetching=true;
+  document.getElementById("currUpdateNote").textContent="⏳ Fetching live rates...";
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/USD',{cache:'no-store'});
+    const d=await r.json();
+    if(d.result==='success'&&d.rates){
+      liveRates=d.rates;ratesTimestamp=new Date();
+      localStorage.setItem('abRates',JSON.stringify({rates:d.rates,ts:Date.now()}));
+      document.getElementById("currUpdateNote").textContent=`✅ Live rates — updated ${ratesTimestamp.toLocaleTimeString()}`;
+    }else{throw new Error('bad response');}
+  }catch(e){
+    liveRates=FALLBACK_RATES;
+    document.getElementById("currUpdateNote").textContent="⚠️ Offline — using approximate rates";
+  }
+  ratesFetching=false;
+  renderCurrency();
+}
+
+function renderCurrency(){
+  const amt=parseFloat(document.getElementById("currAmount").value)||0;
+  const from=document.getElementById("currFrom").value;
+  const rates=liveRates||FALLBACK_RATES;
+  const usdAmt=amt/rates[from]; // convert to USD first
+  const targets=Object.keys(CURR_META).filter(k=>k!==from);
+  const g=document.getElementById("currResults");
+  g.innerHTML='';
+  targets.forEach(c=>{
+    const val=usdAmt*rates[c];
+    const m=CURR_META[c];
+    g.innerHTML+=`<div class="curr-box">
+      <div class="curr-box-flag">${m.flag}</div>
+      <div class="curr-box-label">${c}</div>
+      <div class="curr-box-val">${m.symbol} ${val<1?val.toFixed(4):val<100?val.toFixed(2):Math.round(val).toLocaleString()}</div>
+      <div class="curr-box-name">${m.name}</div>
+    </div>`;
+  });
+}
+document.getElementById("currAmount").addEventListener("input",renderCurrency);
+document.getElementById("currFrom").addEventListener("change",renderCurrency);
+
+// ════════════════════════════════════════
+// WEATHER — Live via Open-Meteo (free, no API key)
+// ════════════════════════════════════════
+const CITY_COORDS={
+  Karachi:   {lat:24.8607,lon:67.0011,city:"Karachi",country:"Pakistan",tip:"Hot & humid. Light breathable clothing. Stay hydrated."},
+  Islamabad: {lat:33.6844,lon:73.0479,city:"Islamabad",country:"Pakistan",tip:"Pleasant evenings. Carry a light jacket."},
+  Lahore:    {lat:31.5204,lon:74.3587,city:"Lahore",country:"Pakistan",tip:"Very hot days. Use sunscreen. Drink water."},
+  Dubai:     {lat:25.2048,lon:55.2708,city:"Dubai",country:"UAE",tip:"Extreme outdoor heat. AC indoors everywhere."},
+  AbuDhabi:  {lat:24.4539,lon:54.3773,city:"Abu Dhabi",country:"UAE",tip:"Extreme heat. Drink water frequently."},
+  Riyadh:    {lat:24.7136,lon:46.6753,city:"Riyadh",country:"Saudi Arabia",tip:"Very dry heat. Dust possible. Hydrate well."},
+  Jeddah:    {lat:21.2854,lon:39.2376,city:"Jeddah",country:"Saudi Arabia",tip:"Humid coastal heat. Light clothing."},
+  Baku:      {lat:40.4093,lon:49.8671,city:"Baku",country:"Azerbaijan",tip:"Very windy. Carry a scarf or light jacket."},
+  Muscat:    {lat:23.5880,lon:58.3829,city:"Muscat",country:"Oman",tip:"Very hot. Avoid outdoor activity midday."},
+};
+const WMO_CODES={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Icy fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",80:"Showers",81:"Heavy showers",95:"Thunderstorm",96:"Thunderstorm w/ hail",99:"Severe thunderstorm"};
+const WMO_ICONS={0:"☀️",1:"🌤",2:"⛅",3:"☁️",45:"🌫",48:"🌫",51:"🌦",53:"🌧",55:"🌧",61:"🌦",63:"🌧",65:"⛈",71:"🌨",73:"❄️",75:"❄️",80:"🌧",81:"⛈",95:"⛈",96:"⛈",99:"⛈"};
+
+let weatherCache={};
+async function renderWeather(){
+  const dest=document.getElementById("weatherDest").value;
+  const city=CITY_COORDS[dest];if(!city)return;
+  const el=document.getElementById("weatherDisplay");
+  // Check cache (30 min)
+  if(weatherCache[dest]&&Date.now()-weatherCache[dest].ts<1800000){return showWeather(weatherCache[dest].data,city);}
+  el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:36px">⏳</div><div style="margin-top:8px;font-size:14px">Loading live weather...</div></div>`;
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,uv_index&wind_speed_unit=kmh&timezone=auto`;
+    const r=await fetch(url);const d=await r.json();
+    const c=d.current;
+    const data={temp:Math.round(c.temperature_2m),feels:Math.round(c.apparent_temperature),humidity:c.relative_humidity_2m,wind:Math.round(c.wind_speed_10m),code:c.weather_code,uv:c.uv_index,updated:new Date().toLocaleTimeString()};
+    weatherCache[dest]={data,ts:Date.now()};
+    showWeather(data,city);
+  }catch(e){
+    el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--text3)"><div style="font-size:36px">📡</div><div style="margin-top:8px;font-size:14px">Could not load weather.<br>Check your internet connection.</div></div>`;
+  }
+}
+function uvLabel(uv){if(uv<=2)return"Low";if(uv<=5)return"Moderate";if(uv<=7)return"High";if(uv<=10)return"Very High";return"Extreme";}
+function showWeather(w,city){
+  const icon=WMO_ICONS[w.code]||"🌡️";
+  const desc=WMO_CODES[w.code]||"--";
+  document.getElementById("weatherDisplay").innerHTML=`
+    <div class="weather-card-main">
+      <div class="weather-city">${city.city}, ${city.country}</div>
+      <div class="weather-icon">${icon}</div>
+      <div class="weather-temp">${w.temp}°C</div>
+      <div class="weather-desc">${desc}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px">Updated ${w.updated}</div>
+    </div>
+    <div class="weather-grid">
+      <div class="weather-detail"><div class="wd-icon">🌡️</div><div class="wd-val">${w.feels}°C</div><div class="wd-lbl">Feels like</div></div>
+      <div class="weather-detail"><div class="wd-icon">💧</div><div class="wd-val">${w.humidity}%</div><div class="wd-lbl">Humidity</div></div>
+      <div class="weather-detail"><div class="wd-icon">💨</div><div class="wd-val">${w.wind} km/h</div><div class="wd-lbl">Wind</div></div>
+      <div class="weather-detail"><div class="wd-icon">☀️</div><div class="wd-val">${uvLabel(w.uv)} (${w.uv})</div><div class="wd-lbl">UV Index</div></div>
+      <div class="weather-detail" style="grid-column:span 2"><div class="wd-icon">👗</div><div class="wd-val" style="font-size:12px;line-height:1.4">${city.tip}</div><div class="wd-lbl">Crew tip</div></div>
+    </div>`;
+}
+document.getElementById("weatherDest").addEventListener("change",renderWeather);
+
+// ════════════════════════════════════════
+// REST CALCULATOR
+// ════════════════════════════════════════
+document.getElementById("calcRestBtn").addEventListener("click",()=>{
+  const aH=parseInt(document.getElementById("restArrH").value);
+  const aM=parseInt(document.getElementById("restArrM").value);
+  const pH=parseInt(document.getElementById("restPickH").value);
+  const pM=parseInt(document.getElementById("restPickM").value);
+  const buf=parseInt(document.getElementById("restBuffer").value)||30;
+  if(isNaN(aH)||isNaN(aM)||isNaN(pH)||isNaN(pM)){alert("Please fill all fields");return;}
+  const arrMins=aH*60+aM;
+  const pickMins=pH*60+pM;
+  let layoverMins=pickMins-arrMins;
+  if(layoverMins<0)layoverMins+=1440;
+  const restMins=layoverMins-(buf*2);
+  const sleepStart=(arrMins+buf)%1440;
+  const wakeUp=(pickMins-buf+1440)%1440;
+  const sH=Math.floor(sleepStart/60)%24,sM=sleepStart%60;
+  const wH=Math.floor(wakeUp/60)%24,wM=wakeUp%60;
+  const restH=Math.floor(Math.max(0,restMins)/60),restM=Math.max(0,restMins)%60;
+  document.getElementById("restDuration").textContent=restMins>0?`${restH}h ${restM}m`:"No rest time!";
+  document.getElementById("restSub").textContent=restMins>0?`Total layover: ${Math.floor(layoverMins/60)}h ${layoverMins%60}m`:"Layover too short for meaningful rest";
+  document.getElementById("restFrom").textContent=pad(sH)+":"+pad(sM);
+  document.getElementById("restTo").textContent=pad(wH)+":"+pad(wM);
+  let advice="";
+  if(restMins<120)advice="Very short rest. Try to nap immediately. Set multiple alarms.";
+  else if(restMins<240)advice="Short rest. Limit caffeine 4h before sleep. Sleep immediately on arrival.";
+  else if(restMins<360)advice="Moderate rest. Avoid heavy meals. Keep room dark and cool.";
+  else advice="Good rest window. Aim for a full sleep cycle (90 min multiples). Hydrate well.";
+  document.getElementById("restAdvice").textContent=advice;
+  document.getElementById("restResult").classList.add("show");
+});
+
+// ════════════════════════════════════════
+// CHECKLIST
+// ════════════════════════════════════════
+const CHECKLIST=[
+  {cat:"Documents",items:["Passport (valid 6+ months)","National ID card","Airblue crew ID","Medical certificate","License / crew license copy"]},
+  {cat:"Uniform & Appearance",items:["Full uniform pressed & clean","Name badge","Scarf / accessories per SOP","Comfortable approved shoes","Spare stockings/socks"]},
+  {cat:"Briefing Pack",items:["Pre-flight briefing printed/saved","Route & aircraft type noted","Emergency procedures reviewed","Catering specs checked"]},
+  {cat:"Personal Essentials",items:["Phone fully charged","Earphones","Crew bag packed","Snacks / water bottle","Currency for destination","Hotel booking confirmed"]},
+  {cat:"Health & Safety",items:["Sufficient sleep (8h+)","Medications if needed","Sanitizer / wipes","Face mask available"]},
+];
+function getChecks(){try{return JSON.parse(localStorage.getItem('abChecks')||'{}');}catch{return{};}}
+function saveChecks(c){localStorage.setItem('abChecks',JSON.stringify(c));}
+function buildChecklist(){
+  const checks=getChecks();
+  const container=document.getElementById("checklistItems");
+  container.innerHTML='';
+  let total=0,done=0;
+  CHECKLIST.forEach(section=>{
+    const secDiv=document.createElement('div');
+    secDiv.innerHTML=`<div style="font-size:12px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;padding:10px 0 4px;border-top:0.5px solid var(--border);margin-top:4px">${section.cat}</div>`;
+    section.items.forEach(item=>{
+      total++;
+      const key=section.cat+'::'+item;
+      const isChecked=checks[key]||false;
+      if(isChecked)done++;
+      const row=document.createElement('div');
+      row.className='check-item';
+      row.innerHTML=`<div class="check-box${isChecked?' checked':''}"></div><div class="check-item-text${isChecked?' checked':''}">${item}</div>`;
+      row.addEventListener('click',()=>{
+        const c=getChecks();c[key]=!c[key];saveChecks(c);buildChecklist();
+      });
+      secDiv.appendChild(row);
+    });
+    container.appendChild(secDiv);
+  });
+  document.getElementById("checkCount").textContent=done;
+  document.getElementById("checkTotal").textContent=total;
+  document.getElementById("checkBar").style.width=Math.round(done/total*100)+"%";
+}
+document.getElementById("resetChecklist").addEventListener("click",()=>{
+  if(confirm("Reset all checklist items?")){saveChecks({});buildChecklist();}
+});
+
+// ════════════════════════════════════════
+// ROUTES
+// ════════════════════════════════════════
+const ROUTES=[
+  {from:"KHI",to:"ISB",name:"Karachi → Islamabad",duration:"1h 45m",freq:"Multiple daily",code:"PA-100s"},
+  {from:"KHI",to:"LHE",name:"Karachi → Lahore",duration:"1h 50m",freq:"Multiple daily",code:"PA-200s"},
+  {from:"KHI",to:"DXB",name:"Karachi → Dubai",duration:"2h 15m",freq:"Daily",code:"PA-201/202"},
+  {from:"KHI",to:"AUH",name:"Karachi → Abu Dhabi",duration:"2h 25m",freq:"Weekly",code:"PA-203"},
+  {from:"KHI",to:"RUH",name:"Karachi → Riyadh",duration:"3h 10m",freq:"Weekly",code:"PA-210"},
+  {from:"KHI",to:"JED",name:"Karachi → Jeddah",duration:"3h 30m",freq:"Weekly",code:"PA-215"},
+  {from:"LHE",to:"DXB",name:"Lahore → Dubai",duration:"2h 30m",freq:"Daily",code:"PA-220"},
+  {from:"ISB",to:"DXB",name:"Islamabad → Dubai",duration:"2h 45m",freq:"Daily",code:"PA-230"},
+  {from:"KHI",to:"GYD",name:"Karachi → Baku",duration:"3h 45m",freq:"Weekly",code:"PA-240"},
+  {from:"KHI",to:"MCT",name:"Karachi → Muscat",duration:"2h 5m",freq:"Weekly",code:"PA-250"},
+  {from:"ISB",to:"RUH",name:"Islamabad → Riyadh",duration:"3h 20m",freq:"Weekly",code:"PA-260"},
+];
+function buildRoutes(){
+  const el=document.getElementById("routesList");
+  el.innerHTML='';
+  ROUTES.forEach(r=>{
+    el.innerHTML+=`<div class="route-card">
+      <div class="route-top">
+        <div class="route-cities">${r.from} <span style="color:var(--text3)">→</span> ${r.to}</div>
+        <span class="route-duration">⏱ ${r.duration}</span>
+      </div>
+      <div class="route-meta">${r.name}</div>
+      <div class="route-code"><span class="tag tag-red">${r.code}</span> <span class="tag tag-blue">${r.freq}</span></div>
+    </div>`;
+  });
+}
+
+// ════════════════════════════════════════
+// AI ROSTER SCANNER
+// ════════════════════════════════════════
+document.getElementById("scanRosterBtn").addEventListener("click",()=>{
+  const el=document.getElementById("scanResult");
+  el.style.display=el.style.display==="none"?"block":"none";
+});
+document.getElementById("closeScanBtn").addEventListener("click",()=>{
+  document.getElementById("scanResult").style.display="none";
+});
+document.getElementById("uploadRosterBtn").addEventListener("click",()=>{
+  document.getElementById("rosterImageInput").click();
+});
+document.getElementById("rosterImageInput").addEventListener("change",async function(){
+  const file=this.files[0];if(!file)return;
+  const status=document.getElementById("scanStatus");
+  const preview=document.getElementById("scanPreview");
+  const scanImg=document.getElementById("scanImg");
+  const closeScanBtn=document.getElementById("closeScanBtn");
+  // Show preview
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const b64=e.target.result.split(',')[1];
+    scanImg.src=e.target.result;
+    preview.style.display="block";
+    status.innerHTML="<span style='color:var(--gold)'>🤖 AI is reading your roster...</span>";
+    closeScanBtn.style.display="none";
+    try{
+      const resp=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-6",
+          max_tokens:1000,
+          messages:[{role:"user",content:[
+            {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
+            {type:"text",text:`You are reading a cabin crew flight roster. Extract ALL flights listed and return ONLY a JSON array, no markdown, no explanation. Each flight object must have exactly these fields: {"date":"YYYY-MM-DD","from":"XXX","to":"XXX","dep":"HH:MM","flightNum":"PA-XXX"}. If any field is unclear use "?". Today's year is ${new Date().getFullYear()}. Return only the JSON array.`}
+          ]}]
+        })
+      });
+      const data=await resp.json();
+      const raw=data.content.map(x=>x.text||"").join("");
+      const cleaned=raw.replace(/```json|```/g,"").trim();
+      const flights=JSON.parse(cleaned);
+      if(!Array.isArray(flights)||flights.length===0)throw new Error("No flights found");
+      const existing=getFlights();
+      let added=0;
+      flights.forEach(f=>{
+        if(f.date&&f.from&&f.to&&f.dep){
+          const dup=existing.some(e=>e.date===f.date&&e.from===f.from&&e.to===f.to);
+          if(!dup){existing.push(f);added++;}
+        }
+      });
+      saveFlights(existing);
+      status.innerHTML=`<span style='color:var(--green)'>✅ Found ${flights.length} flights, added ${added} new to your roster!</span>`;
+      closeScanBtn.style.display="block";
+      renderRoster();
+    }catch(err){
+      status.innerHTML=`<span style='color:var(--red2)'>❌ Could not read roster. Try a clearer photo with good lighting. (${err.message})</span>`;
+      closeScanBtn.style.display="block";
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+initCal();
+buildDropdowns();
+buildChecklist();
+buildRoutes();
+renderRoster();
+renderCurrency();
+renderWeather();
+updateClocks();
+setInterval(updateClocks,1000);
+// Fetch live data
+fetchLiveRates();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
