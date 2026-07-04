@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="AB Crew"/>
+<meta name="theme-color" content="#0d0d14"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>Airblue Crew</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+:root{
+  --red:#D4002B;--red2:#ff2244;--red3:#ff6680;--red-dim:rgba(212,0,43,0.12);--red-glow:rgba(212,0,43,0.25);
+  --bg:#0d0d14;--bg2:#12121c;--bg3:#181825;--bg4:#1e1e2e;--bg5:#252538;
+  --card:#161622;--card2:#1c1c2a;--card3:#222233;
+  --text:#f2f2ff;--text2:#b4b4d8;--text3:#8c8cb0;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.16);--border3:rgba(255,255,255,0.24);
+  --gold:#f5c842;--gold2:#ffd966;--gold-dim:rgba(245,200,66,0.12);
+  --green:#22c55e;--green2:#4ade80;--green-dim:rgba(34,197,94,0.12);
+  --blue:#3b82f6;--blue2:#60a5fa;--blue-dim:rgba(59,130,246,0.12);
+  --purple:#a855f7;--purple2:#c084fc;--purple-dim:rgba(168,85,247,0.12);
+  --cyan:#06b6d4;--cyan-dim:rgba(6,182,212,0.12);
+  --r:18px;--r2:12px;--r3:8px;--r4:24px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);--shadow2:0 2px 12px rgba(0,0,0,0.3);
+  --nav-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overscroll-behavior:none;-webkit-font-smoothing:antialiased;}
+body{overflow:hidden;display:flex;flex-direction:column;}
+input,select,button{font-family:var(--font);}
+select option{background:#1c1c2a;}
+
+/* ── STATUS BAR SPACER ── */
+.safe-top{height:env(safe-area-inset-top,0px);background:var(--bg);flex-shrink:0;}
+
+/* ── TOP HEADER ── */
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 18px 10px;background:var(--bg);
+  border-bottom:0.5px solid var(--border);flex-shrink:0;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--red),#a0001f);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px var(--red-glow);
+}
+.logo-icon svg{width:20px;height:20px;fill:#fff;}
+.logo-name{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.3px;}
+.logo-sub{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-top:1px;}
+.header-right{text-align:right;}
+.hdr-clock{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:-0.5px;}
+.hdr-date{font-size:10px;font-weight:500;color:var(--text3);margin-top:1px;}
+
+/* ── SCREEN CONTAINER ── */
+.screens{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(var(--nav-h) + 20px);display:none;scrollbar-width:none;}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{display:block;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:absolute;bottom:0;left:0;right:0;
+  height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--bg3);border-top:1px solid var(--border3);
+  display:flex;align-items:flex-start;
+  z-index:50;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.35);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;padding:10px 4px 6px;border:none;background:none;cursor:pointer;
+  color:var(--text2);transition:color 0.2s;min-height:var(--nav-h);
+}
+.nav-btn.active{color:var(--red2);}
+.nav-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;}
+.nav-btn.active svg{transform:scale(1.1);}
+.nav-dot{
+  width:4px;height:4px;border-radius:50%;background:var(--red2);
+  margin-top:2px;opacity:0;transition:opacity 0.2s;
+}
+.nav-btn.active .nav-dot{opacity:1;}
+.nav-label{font-size:11px;font-weight:700;letter-spacing:0.2px;}
+
+/* ── SHARED COMPONENTS ── */
+.sec-hd{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin:20px 0 10px;}
+.sec-hd:first-child{margin-top:0;}
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.card-glass{background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));border:0.5px solid var(--border2);border-radius:var(--r);padding:16px;margin-bottom:12px;backdrop-filter:blur(10px);}
+.row{display:flex;gap:10px;}
+.col{flex:1;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.badge-red{background:var(--red-dim);color:var(--red2);}
+.badge-gold{background:var(--gold-dim);color:var(--gold);}
+.badge-green{background:var(--green-dim);color:var(--green2);}
+.badge-blue{background:var(--blue-dim);color:var(--blue2);}
+.badge-purple{background:var(--purple-dim);color:var(--purple2);}
+.divider{height:0.5px;background:var(--border);margin:14px 0;}
+.lbl{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px;}
+.sel{width:100%;font-size:15px;font-weight:600;padding:12px 14px;border-radius:var(--r2);border:0.5px solid var(--border2);background:var(--card2);color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;}
+.inp{width:100%;font-size:15px;font-weight:500;padding:12px 14px;border-radius:var(--r2);border:0.5px solid var(--border2);background:var(--card2);color:var(--text);}
+.inp::placeholder{color:var(--text3);}
+.btn{width:100%;padding:14px;border-radius:var(--r2);font-size:15px;font-weight:700;cursor:pointer;border:none;letter-spacing:0.1px;transition:all 0.15s;}
+.btn:active{opacity:0.8;transform:scale(0.99);}
+.btn-primary{background:linear-gradient(135deg,var(--red),#a0001f);color:#fff;box-shadow:0 4px 16px var(--red-glow);}
+.btn-ghost{background:var(--card3);color:var(--text2);border:0.5px solid var(--border2);}
+.btn-gold{background:var(--gold-dim);color:var(--gold);border:0.5px solid rgba(245,200,66,0.25);}
+.btn-sm{padding:9px 16px;width:auto;font-size:13px;border-radius:var(--r3);}
+
+/* ── REGION PICKER ── */
+.region-pill{display:flex;align-items:center;gap:8px;background:var(--card2);border:0.5px solid var(--border2);border-radius:var(--r4);padding:8px 14px;margin-bottom:14px;}
+.region-pill label{font-size:13px;color:var(--text2);white-space:nowrap;}
+.region-pill select{flex:1;font-size:14px;font-weight:600;background:none;border:none;color:var(--text);cursor:pointer;}
+.live-badge{font-size:10px;font-weight:800;background:var(--green-dim);color:var(--green);padding:3px 8px;border-radius:20px;white-space:nowrap;letter-spacing:0.3px;}
+
+/* ── CLOCK CARDS ── */
+.clock-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.clock-card{
+  background:linear-gradient(145deg,var(--card2),var(--card));
+  border:0.5px solid var(--border2);border-radius:var(--r);
+  padding:18px 14px;text-align:center;position:relative;overflow:hidden;
+}
+.clock-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:var(--red-glow);filter:blur(30px);pointer-events:none;}
+.clock-card-lbl{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.clock-digits{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:-1px;line-height:1;}
+.clock-sec{font-size:16px;font-weight:600;color:var(--text2);letter-spacing:-0.5px;}
+.clock-ampm{font-size:13px;font-weight:700;color:var(--text2);margin-left:3px;}
+.clock-date-sub{font-size:12px;color:var(--text3);margin-top:7px;font-weight:500;}
+.clock-tz-pill{display:inline-block;font-size:12px;font-weight:800;color:var(--red3);background:var(--red-dim);padding:2px 8px;border-radius:20px;margin-top:5px;}
+
+/* ── CALENDAR ── */
+.cal-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,var(--red),#900020);}
+.cal-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.3px;}
+.cal-nav{background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.cal-nav:hover{background:rgba(255,255,255,0.25);}
+.cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);background:var(--card2);padding:6px 10px 4px;}
+.cal-dow-cell{text-align:center;font-size:11px;font-weight:800;color:var(--text3);padding:4px 0;text-transform:uppercase;letter-spacing:0.5px;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 10px 12px;gap:3px;}
+.cal-day{
+  text-align:center;font-size:15px;font-weight:500;color:var(--text);
+  padding:8px 0;cursor:pointer;border-radius:var(--r3);transition:all 0.15s;
+  position:relative;
+}
+.cal-day:not(.empty):hover{background:var(--card3);}
+.cal-day.today{color:var(--gold);font-weight:800;}
+.cal-day.today::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold);}
+.cal-day.selected{background:var(--red)!important;color:#fff!important;font-weight:700;box-shadow:0 2px 8px var(--red-glow);}
+.cal-day.selected::after{display:none;}
+.cal-day.empty,.cal-day.past{color:var(--text3);cursor:default;}
+.cal-day.empty:hover{background:none;}
+
+/* ── TIME SELECTS ── */
+.time-sel{font-size:22px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;padding:14px 10px;}
+
+/* ── DEP SUMMARY ── */
+.dep-summary-card{
+  display:none;background:linear-gradient(135deg,rgba(212,0,43,0.08),rgba(212,0,43,0.04));
+  border:1px solid rgba(212,0,43,0.2);border-radius:var(--r2);padding:14px;margin-bottom:12px;
+}
+.dep-summary-card.show{display:block;}
+.dep-sum-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.dep-sum-label{font-size:11px;font-weight:800;color:var(--red3);text-transform:uppercase;letter-spacing:0.8px;}
+.dep-sum-date{font-size:16px;font-weight:800;color:var(--text);margin-top:3px;}
+.dep-sum-times{display:flex;gap:8px;}
+.dep-time-pill{flex:1;background:var(--card2);border-radius:var(--r3);padding:10px;text-align:center;}
+.dep-time-pill-lbl{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase;}
+.dep-time-pill-val{font-size:18px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;}
+
+/* ── PICKUP RESULT ── */
+.pickup-section{display:none;margin-bottom:12px;}
+.pickup-section.show{display:block;}
+.pickup-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pickup-header-icon{width:28px;height:28px;border-radius:8px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:15px;}
+.pickup-header-text{font-size:13px;font-weight:700;color:var(--text);}
+.pickup-header-sub{font-size:12px;color:var(--text3);}
+.pickup-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pickup-card{
+  background:linear-gradient(145deg,rgba(212,0,43,0.10),rgba(212,0,43,0.05));
+  border:1.5px solid rgba(212,0,43,0.25);border-radius:var(--r2);padding:16px 12px;text-align:center;
+}
+.pickup-card-lbl{font-size:11px;font-weight:800;color:var(--red3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.pickup-card-time{font-size:28px;font-weight:900;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-1px;}
+.pickup-card-ampm{font-size:16px;font-weight:700;color:var(--text2);margin-left:2px;}
+.pickup-card-date{font-size:12px;color:var(--text2);margin-top:6px;font-weight:500;}
+
+/* ── DUAL COUNTDOWN BARS ── */
+.countdown-wrap{background:var(--card2);border-radius:var(--r2);padding:14px;margin-top:12px;}
+.cd-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.cd-title{font-size:12px;font-weight:700;color:var(--text2);}
+.cd-main-time{font-size:13px;font-weight:800;color:var(--text);}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.bar-label{font-size:12px;font-weight:700;width:48px;flex-shrink:0;}
+.bar-label.gold{color:var(--gold);}
+.bar-label.red{color:var(--red2);}
+.bar-track{flex:1;height:8px;background:var(--bg4);border-radius:20px;overflow:hidden;}
+.bar-fill{height:8px;border-radius:20px;transition:width 1s linear;}
+.bar-fill.gold{background:linear-gradient(90deg,#b8860b,var(--gold),var(--gold2));}
+.bar-fill.red{background:linear-gradient(90deg,#900020,var(--red),var(--red2));}
+.bar-time{font-size:12px;font-weight:700;width:46px;text-align:right;font-variant-numeric:tabular-nums;}
+.bar-time.gold{color:var(--gold);}
+.bar-time.red{color:var(--red2);}
+
+/* ── DOC NOTE ── */
+.doc-note{display:none;background:var(--blue-dim);border:0.5px solid rgba(59,130,246,0.2);border-radius:var(--r2);padding:12px 14px;margin-top:12px;font-size:13px;color:var(--blue2);line-height:1.6;gap:9px;align-items:flex-start;}
+.doc-note.show{display:flex;}
+
+/* ── ROSTER ── */
+.flight-card{
+  background:var(--card);border:0.5px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.flight-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);}
+.flight-card.today-flight::before{background:var(--gold);}
+.flight-route{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-0.5px;margin-bottom:6px;}
+.flight-route span{color:var(--text3);font-weight:400;margin:0 4px;}
+.flight-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.flight-meta-item{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text2);font-weight:500;}
+.flight-pickup-row{margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);font-size:13px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px;}
+.flight-del-btn{position:absolute;top:12px;right:12px;background:var(--red-dim);border:none;color:var(--red2);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty-icon{font-size:52px;margin-bottom:14px;opacity:0.6;}
+.empty-text{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px;}
+.empty-sub{font-size:14px;line-height:1.6;}
+.cd-badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.cd-badge.soon{background:var(--gold-dim);color:var(--gold);}
+.cd-badge.urgent{background:var(--red-dim);color:var(--red2);}
+.cd-badge.normal{background:var(--bg4);color:var(--text3);}
+
+/* ── DAYS OFF ── */
+.daysoff-hero{
+  background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(168,85,247,0.05));
+  border:0.5px solid rgba(168,85,247,0.25);border-radius:var(--r);
+  padding:24px;text-align:center;margin-bottom:14px;
+}
+.daysoff-num{font-size:72px;font-weight:900;color:var(--purple);line-height:1;letter-spacing:-3px;}
+.daysoff-lbl{font-size:15px;font-weight:600;color:var(--text2);margin-top:6px;}
+.daysoff-date{font-size:14px;color:var(--purple2);font-weight:700;margin-top:8px;}
+
+/* ── CURRENCY ── */
+.curr-amount-wrap{background:var(--card);border:0.5px solid var(--border2);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.curr-big-input{font-size:36px;font-weight:900;color:var(--text);background:none;border:none;width:100%;font-variant-numeric:tabular-nums;letter-spacing:-1px;}
+.curr-big-input:focus{outline:none;}
+.curr-from-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.curr-from-lbl{font-size:13px;color:var(--text3);font-weight:600;}
+.curr-from-sel{font-size:16px;font-weight:800;color:var(--text);background:var(--card2);border:0.5px solid var(--border2);border-radius:var(--r3);padding:8px 12px;cursor:pointer;}
+.curr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.curr-box{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r2);padding:14px;transition:border-color 0.2s;}
+.curr-box-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.curr-box-flag{font-size:20px;}
+.curr-box-code{font-size:12px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
+.curr-box-val{font-size:22px;font-weight:900;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-0.5px;}
+.curr-box-name{font-size:12px;color:var(--text3);margin-top:3px;font-weight:500;}
+.curr-status{font-size:12px;text-align:center;padding:8px;border-radius:var(--r3);}
+.curr-status.live{background:var(--green-dim);color:var(--green2);}
+.curr-status.offline{background:var(--gold-dim);color:var(--gold);}
+.curr-status.loading{background:var(--blue-dim);color:var(--blue2);}
+
+/* ── WEATHER ── */
+.weather-sel-wrap{position:relative;margin-bottom:14px;}
+.weather-sel{font-size:16px;font-weight:700;padding:14px 16px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--card);color:var(--text);cursor:pointer;width:100%;}
+.weather-hero{
+  background:linear-gradient(145deg,#0d1b3e,#091428);
+  border:0.5px solid rgba(59,130,246,0.2);border-radius:var(--r);
+  padding:24px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden;
+}
+.weather-hero::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:200px;height:200px;border-radius:50%;background:rgba(59,130,246,0.06);filter:blur(40px);}
+.wh-city{font-size:12px;font-weight:800;color:#90b8f0;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.wh-icon{font-size:64px;margin:8px 0;line-height:1;}
+.wh-temp{font-size:56px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;}
+.wh-desc{font-size:16px;color:var(--text2);margin-top:8px;text-transform:capitalize;font-weight:500;}
+.wh-updated{font-size:11px;color:rgba(255,255,255,0.45);margin-top:8px;font-weight:500;}
+.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.w-stat{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r2);padding:12px;text-align:center;}
+.w-stat-icon{font-size:20px;margin-bottom:4px;}
+.w-stat-val{font-size:15px;font-weight:800;color:var(--text);}
+.w-stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+.crew-tip{background:linear-gradient(135deg,rgba(245,200,66,0.08),rgba(245,200,66,0.04));border:0.5px solid rgba(245,200,66,0.2);border-radius:var(--r2);padding:12px 14px;font-size:14px;color:var(--gold2);display:flex;align-items:flex-start;gap:8px;line-height:1.6;}
+.weather-loading{text-align:center;padding:50px 20px;color:var(--text3);}
+.w-spin{font-size:36px;animation:spin 1.5s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.weather-note{font-size:12px;color:var(--text3);text-align:center;margin-top:8px;}
+
+/* ── REST CALC ── */
+.rest-result-card{display:none;background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);border-radius:var(--r);padding:16px;margin-top:12px;}
+.rest-result-card.show{display:block;}
+.rest-dur{font-size:36px;font-weight:900;color:var(--green);letter-spacing:-1px;}
+.rest-sub{font-size:14px;color:var(--text2);margin-top:4px;}
+.rest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.rest-box{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r2);padding:14px;text-align:center;}
+.rest-box-lbl{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;}
+.rest-box-val{font-size:22px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;}
+.rest-advice{margin-top:12px;background:rgba(34,197,94,0.08);border:0.5px solid rgba(34,197,94,0.2);border-radius:var(--r2);padding:12px;font-size:14px;color:var(--green2);line-height:1.6;display:flex;gap:8px;}
+
+/* ── CHECKLIST ── */
+.check-progress-wrap{background:var(--card2);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.check-progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.check-progress-lbl{font-size:13px;font-weight:700;color:var(--text);}
+.check-progress-count{font-size:13px;font-weight:800;color:var(--green);}
+.check-track{height:6px;background:var(--bg4);border-radius:20px;overflow:hidden;}
+.check-fill{height:6px;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:20px;transition:width 0.4s ease;}
+.check-section-hd{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:10px 0 4px;margin-top:4px;}
+.check-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity 0.15s;}
+.check-item:last-child{border-bottom:none;}
+.check-item:active{opacity:0.7;}
+.check-box-ui{
+  width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border3);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;
+}
+.check-box-ui.done{background:var(--green);border-color:var(--green);}
+.check-box-ui.done::after{content:'✓';color:#fff;font-size:13px;font-weight:900;}
+.check-item-lbl{font-size:15px;font-weight:500;color:var(--text);flex:1;line-height:1.4;}
+.check-item-lbl.done{color:var(--text3);text-decoration:line-through;}
+
+/* ── ROUTES ── */
+.route-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;position:relative;overflow:hidden;}
+.route-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue);}
+.route-airports{font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px;}
+.route-airports span{color:var(--text3);font-weight:300;margin:0 6px;}
+.route-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:flex-end;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal-sheet{
+  background:var(--bg2);border-radius:var(--r) var(--r) 0 0;
+  padding:20px 16px;padding-bottom:max(env(safe-area-inset-bottom),24px);
+  width:100%;max-height:90vh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+}
+.modal-handle{width:36px;height:4px;background:var(--border3);border-radius:20px;margin:0 auto 18px;}
+.modal-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{background:var(--card3);border:none;color:var(--text2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+
+/* ── AI SCAN PANEL ── */
+.scan-panel{display:none;background:linear-gradient(135deg,rgba(245,200,66,0.06),rgba(245,200,66,0.02));border:0.5px solid rgba(245,200,66,0.2);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.scan-panel.show{display:block;}
+.scan-title{font-size:14px;font-weight:800;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.scan-desc{font-size:14px;color:var(--text2);margin-bottom:14px;line-height:1.6;}
+.scan-status{font-size:14px;text-align:center;min-height:20px;margin-top:10px;font-weight:600;}
+.scan-preview{margin-top:12px;display:none;}
+.scan-preview img{width:100%;border-radius:var(--r2);max-height:180px;object-fit:cover;}
+</style>
+</head>
+<body>
+<div class="safe-top"></div>
+
+<!-- TOP HEADER -->
+<header class="app-header">
+  <div class="logo-wrap">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">Airblue Crew</div>
+      <div class="logo-sub">Cabin Crew Companion</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="hdr-clock" id="hdrClock">--:--</div>
+    <div class="hdr-date" id="hdrDate">--</div>
+  </div>
+</header>
+
+<!-- SCREEN CONTAINER -->
+<div class="screens">
+
+<!-- ═══ SCREEN: TIME ═══ -->
+<div class="screen active" id="scr-time">
+  <div class="region-pill">
+    <label>📍</label>
+    <select id="regionSel">
+      <option value="Asia/Karachi">🇵🇰 Pakistan (PKT)</option>
+      <option value="Asia/Riyadh">🇸🇦 Saudi Arabia (AST)</option>
+      <option value="Asia/Dubai">🇦🇪 UAE (GST)</option>
+      <option value="Asia/Baku">🇦🇿 Baku (AZT)</option>
+    </select>
+    <span class="live-badge" id="localBadge">AUTO</span>
+  </div>
+  <div class="clock-grid">
+    <div class="clock-card">
+      <div class="clock-card-lbl">12 — Hour</div>
+      <div class="clock-digits"><span id="c12h">--</span>:<span id="c12m">--</span><span class="clock-sec">:<span id="c12s">--</span></span><span class="clock-ampm" id="c12ap"></span></div>
+      <div class="clock-date-sub" id="c12date">--</div>
+      <div class="clock-tz-pill" id="c12tz">PKT</div>
+    </div>
+    <div class="clock-card">
+      <div class="clock-card-lbl">24 — Hour</div>
+      <div class="clock-digits"><span id="c24h">--</span>:<span id="c24m">--</span><span class="clock-sec">:<span id="c24s">--</span></span></div>
+      <div class="clock-date-sub" id="c24date">--</div>
+      <div class="clock-tz-pill" id="c24tz">PKT</div>
+    </div>
+  </div>
+
+  <div class="sec-hd">✈️ Flight Departure</div>
+  <div class="card">
+    <span class="lbl">📅 Select Date</span>
+    <div class="cal-card">
+      <div class="cal-head">
+        <button class="cal-nav" id="calPrev">‹</button>
+        <span class="cal-title" id="calTitle">--</span>
+        <button class="cal-nav" id="calNext">›</button>
+      </div>
+      <div class="cal-dow-row" id="calDow"></div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+    <div class="divider"></div>
+    <span class="lbl">⏰ Departure Time</span>
+    <div class="row" style="margin-top:6px">
+      <div class="col"><span class="lbl">Hour (00–23)</span><select class="sel time-sel" id="depH"></select></div>
+      <div class="col"><span class="lbl">Minute</span><select class="sel time-sel" id="depM"></select></div>
+    </div>
+  </div>
+
+  <div class="dep-summary-card" id="depSum">
+    <div class="dep-sum-top">
+      <div><div class="dep-sum-label">Departure Flight</div><div class="dep-sum-date" id="depSumDate">--</div></div>
+    </div>
+    <div class="dep-sum-times">
+      <div class="dep-time-pill"><div class="dep-time-pill-lbl">24h</div><div class="dep-time-pill-val" id="depSum24">--</div></div>
+      <div class="dep-time-pill"><div class="dep-time-pill-lbl">12h</div><div class="dep-time-pill-val" id="depSum12">--</div></div>
+    </div>
+  </div>
+
+  <div class="pickup-section" id="pickupSec">
+    <div class="pickup-header">
+      <div class="pickup-header-icon">🚌</div>
+      <div><div class="pickup-header-text">Pickup Time</div><div class="pickup-header-sub">3 hours 30 minutes before departure</div></div>
+    </div>
+    <div class="pickup-cards">
+      <div class="pickup-card"><div class="pickup-card-lbl">24-hour</div><div class="pickup-card-time" id="pick24">--</div><div class="pickup-card-date" id="pick24d">--</div></div>
+      <div class="pickup-card"><div class="pickup-card-lbl">12-hour</div><div class="pickup-card-time" id="pick12">--<span class="pickup-card-ampm" id="pick12ap"></span></div><div class="pickup-card-date" id="pick12d">--</div></div>
+    </div>
+    <div class="countdown-wrap">
+      <div class="cd-header"><span class="cd-title">Time Remaining</span><span class="cd-main-time" id="cdMain">--</span></div>
+      <div class="bar-row">
+        <span class="bar-icon">🚌</span>
+        <span class="bar-label gold">Pickup</span>
+        <div class="bar-track"><div class="bar-fill gold" id="barPickup" style="width:0%"></div></div>
+        <span class="bar-time gold" id="barPickupT">--</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-icon">✈️</span>
+        <span class="bar-label red">Depart</span>
+        <div class="bar-track"><div class="bar-fill red" id="barDep" style="width:0%"></div></div>
+        <span class="bar-time red" id="barDepT">--</span>
+      </div>
+    </div>
+    <div class="doc-note" id="docNote">
+      <span style="font-size:18px;flex-shrink:0">📎</span>
+      <span>Be ready by pickup: <strong>Passport · Crew ID · Uniform · Briefing pack · National ID</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN: ROSTER ═══ -->
+<div class="screen" id="scr-roster">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div class="sec-hd" style="margin:0">My Flights</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gold btn-sm" id="scanBtn">📸 Scan</button>
+      <button class="btn btn-primary btn-sm" id="addBtn">+ Add</button>
+    </div>
+  </div>
+  <div class="scan-panel" id="scanPanel">
+    <div class="scan-title">🤖 AI Roster Scanner</div>
+    <div class="scan-desc">Take a photo or upload a screenshot of your printed roster. AI will extract all flights automatically.</div>
+    <input type="file" id="rosterFile" accept="image/*" capture="environment" style="display:none"/>
+    <button class="btn btn-primary" id="uploadBtn">📷 Take Photo / Upload</button>
+    <div class="scan-status" id="scanStatus"></div>
+    <div class="scan-preview" id="scanPreview"><img id="scanImg" alt="roster"/></div>
+    <button class="btn btn-ghost" style="margin-top:10px;display:none" id="closeScanBtn">Close</button>
+  </div>
+  <div id="rosterList"></div>
+  <div class="sec-hd">Days Off Countdown</div>
+  <div class="daysoff-hero"><div class="daysoff-num" id="daysNum">—</div><div class="daysoff-lbl">days until next day off</div><div class="daysoff-date" id="daysDate">Set your day off below</div></div>
+  <div class="card"><span class="lbl">Next Day Off</span><input type="date" class="inp" id="daysOffInput" style="margin-top:6px"/><button class="btn btn-primary" style="margin-top:10px" id="saveDaysOff">Save</button></div>
+</div>
+
+<!-- ═══ SCREEN: CURRENCY ═══ -->
+<div class="screen" id="scr-currency">
+  <div class="sec-hd">Currency Converter</div>
+  <div class="curr-amount-wrap">
+    <input type="number" class="curr-big-input" id="currAmt" value="100" inputmode="decimal" placeholder="0"/>
+    <div class="curr-from-row">
+      <span class="curr-from-lbl">Convert from</span>
+      <select class="curr-from-sel" id="currFrom">
+        <option value="PKR">🇵🇰 PKR</option>
+        <option value="SAR">🇸🇦 SAR</option>
+        <option value="AED">🇦🇪 AED</option>
+        <option value="AZN">🇦🇿 AZN</option>
+        <option value="USD">🇺🇸 USD</option>
+        <option value="GBP">🇬🇧 GBP</option>
+      </select>
+    </div>
+  </div>
+  <div class="curr-grid" id="currGrid"></div>
+  <div class="curr-status loading" id="currStatus">⏳ Fetching live rates...</div>
+  <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">Rates are approximate. Verify before transacting.</div>
+</div>
+
+<!-- ═══ SCREEN: WEATHER ═══ -->
+<div class="screen" id="scr-weather">
+  <div class="sec-hd">Destination Weather</div>
+  <select class="weather-sel" id="weatherDest">
+    <option value="Karachi">🇵🇰 Karachi, Pakistan</option>
+    <option value="Islamabad">🇵🇰 Islamabad, Pakistan</option>
+    <option value="Lahore">🇵🇰 Lahore, Pakistan</option>
+    <option value="Dubai">🇦🇪 Dubai, UAE</option>
+    <option value="AbuDhabi">🇦🇪 Abu Dhabi, UAE</option>
+    <option value="Riyadh">🇸🇦 Riyadh, Saudi Arabia</option>
+    <option value="Jeddah">🇸🇦 Jeddah, Saudi Arabia</option>
+    <option value="Baku">🇦🇿 Baku, Azerbaijan</option>
+    <option value="Muscat">🇴🇲 Muscat, Oman</option>
+  </select>
+  <div id="weatherOut"></div>
+</div>
+
+<!-- ═══ SCREEN: REST ═══ -->
+<div class="screen" id="scr-rest">
+  <div class="sec-hd">Crew Rest Calculator</div>
+  <div class="card">
+    <span class="lbl">Arrived at hotel</span>
+    <div class="row" style="margin-top:6px;margin-bottom:14px">
+      <div class="col"><span class="lbl">Hour</span><select class="sel time-sel" id="arrH"></select></div>
+      <div class="col"><span class="lbl">Min</span><select class="sel time-sel" id="arrM"></select></div>
+    </div>
+    <span class="lbl">Next flight pickup</span>
+    <div class="row" style="margin-top:6px;margin-bottom:14px">
+      <div class="col"><span class="lbl">Hour</span><select class="sel time-sel" id="pickH"></select></div>
+      <div class="col"><span class="lbl">Min</span><select class="sel time-sel" id="pickM"></select></div>
+    </div>
+    <span class="lbl">Settle-in / get-ready buffer (mins)</span>
+    <input type="number" class="inp" id="restBuf" value="30" inputmode="numeric" style="margin-top:6px"/>
+    <button class="btn btn-primary" style="margin-top:14px" id="calcRest">Calculate Rest Window</button>
+  </div>
+  <div class="rest-result-card" id="restResult">
+    <div class="rest-dur" id="restDur">--</div>
+    <div class="rest-sub" id="restSubText">--</div>
+    <div class="rest-grid">
+      <div class="rest-box"><div class="rest-box-lbl">Sleep from</div><div class="rest-box-val" id="restFrom">--</div></div>
+      <div class="rest-box"><div class="rest-box-lbl">Wake up by</div><div class="rest-box-val" id="restTo">--</div></div>
+    </div>
+    <div class="rest-advice"><span style="font-size:18px;flex-shrink:0">💤</span><span id="restAdvice">--</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN: CHECKLIST ═══ -->
+<div class="screen" id="scr-check">
+  <div class="sec-hd">Pre-Flight Checklist</div>
+  <div class="check-progress-wrap">
+    <div class="check-progress-top">
+      <span class="check-progress-lbl">Progress</span>
+      <span class="check-progress-count"><span id="ckDone">0</span> / <span id="ckTotal">0</span> done</span>
+    </div>
+    <div class="check-track"><div class="check-fill" id="ckBar" style="width:0%"></div></div>
+  </div>
+  <div class="card" id="ckList"></div>
+  <button class="btn btn-ghost" id="ckReset">↺ Reset All</button>
+</div>
+
+<!-- ═══ SCREEN: ROUTES ═══ -->
+<div class="screen" id="scr-routes">
+  <div class="sec-hd">Airblue Routes</div>
+  <div id="routesList"></div>
+  <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px;line-height:1.6">Reference only. Verify with airblue ops for current schedules.</div>
+</div>
+
+</div><!-- /screens -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-scr="time">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span class="nav-label">Time</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-scr="roster">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <span class="nav-label">Roster</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-scr="currency">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <span class="nav-label">Currency</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-scr="weather">
+    <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+    <span class="nav-label">Weather</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-scr="rest">
+    <svg viewBox="0 0 24 24"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>
+    <span class="nav-label">Rest</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-scr="check">
+    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span class="nav-label">Checklist</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-scr="routes">
+    <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+    <span class="nav-label">Routes</span><div class="nav-dot"></div>
+  </button>
+</nav>
+
+<!-- ADD FLIGHT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Flight <button class="modal-close" id="closeAdd">✕</button></div>
+    <div class="cal-card" id="mCal">
+      <div class="cal-head"><button class="cal-nav" id="mCalPrev">‹</button><span class="cal-title" id="mCalTitle">--</span><button class="cal-nav" id="mCalNext">›</button></div>
+      <div class="cal-dow-row" id="mCalDow"></div>
+      <div class="cal-days" id="mCalDays"></div>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      <div class="col"><span class="lbl">From</span><input class="inp" id="mFrom" placeholder="KHI"/></div>
+      <div class="col"><span class="lbl">To</span><input class="inp" id="mTo" placeholder="DXB"/></div>
+    </div>
+    <div class="row" style="margin-bottom:14px">
+      <div class="col"><span class="lbl">Dep time (24h)</span><input class="inp" id="mDep" placeholder="14:30"/></div>
+      <div class="col"><span class="lbl">Flight #</span><input class="inp" id="mFlt" placeholder="PA-201"/></div>
+    </div>
+    <button class="btn btn-primary" id="saveAddBtn">Save Flight</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════
+const ZONES={"Asia/Karachi":"PKT","Asia/Riyadh":"AST","Asia/Dubai":"GST","Asia/Baku":"AZT"};
+const MF=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function pad(n){return String(n).padStart(2,'0');}
+let TZ="Asia/Karachi";
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const s=b.dataset.scr;
+    document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('scr-'+s).classList.add('active');
+    if(s==='weather')renderWeather();
+    if(s==='currency')renderCurrency();
+    if(s==='roster')renderRoster();
+  });
+});
+
+// ══════════════════════════════════════════
+// CLOCKS
+// ══════════════════════════════════════════
+function getZT(zone){
+  const now=new Date();
+  const ts=now.toLocaleString("en-US",{timeZone:zone,hour:'numeric',minute:'numeric',second:'numeric',hour12:false});
+  const p=ts.split(":").map(Number);
+  const h=p[0]===24?0:p[0],m=p[1],s=p[2];
+  const ds=now.toLocaleString("en-US",{timeZone:zone,weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  return{h,m,s,ds};
+}
+function updateClocks(){
+  const t=getZT(TZ);
+  const h12=t.h%12===0?12:t.h%12,ap=t.h<12?"AM":"PM";
+  const tz=ZONES[TZ]||TZ;
+  document.getElementById("c12h").textContent=pad(h12);
+  document.getElementById("c12m").textContent=pad(t.m);
+  document.getElementById("c12s").textContent=pad(t.s);
+  document.getElementById("c12ap").textContent=" "+ap;
+  document.getElementById("c12date").textContent=t.ds;
+  document.getElementById("c12tz").textContent=tz;
+  document.getElementById("c24h").textContent=pad(t.h);
+  document.getElementById("c24m").textContent=pad(t.m);
+  document.getElementById("c24s").textContent=pad(t.s);
+  document.getElementById("c24date").textContent=t.ds;
+  document.getElementById("c24tz").textContent=tz;
+  document.getElementById("hdrClock").textContent=pad(t.h)+":"+pad(t.m);
+  document.getElementById("hdrDate").textContent=t.ds;
+  updateBars();
+}
+document.getElementById("regionSel").addEventListener("change",function(){
+  TZ=this.value;
+  document.getElementById("localBadge").textContent=ZONES[TZ]||"--";
+  updateClocks();
+});
+(function(){
+  try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone;if(ZONES[z]){document.getElementById("regionSel").value=z;TZ=z;document.getElementById("localBadge").textContent="LOCAL";}}catch(e){}
+})();
+
+// ══════════════════════════════════════════
+// CALENDAR (main)
+// ══════════════════════════════════════════
+let cY,cM,selD=null;
+function initCal(){
+  const n=new Date();cY=n.getFullYear();cM=n.getMonth();
+  document.getElementById("calDow").innerHTML=DS.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('');
+  renderCal();
+}
+function renderCal(){
+  document.getElementById("calTitle").textContent=MF[cM]+" "+cY;
+  const g=document.getElementById("calDays");g.innerHTML='';
+  const first=new Date(cY,cM,1).getDay(),dim=new Date(cY,cM+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=dim;d++){
+    const e=document.createElement('div');e.className='cal-day';e.textContent=d;
+    const isTod=d===today.getDate()&&cM===today.getMonth()&&cY===today.getFullYear();
+    const isPast=new Date(cY,cM,d)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    if(isTod)e.classList.add('today');
+    if(isPast&&!isTod)e.classList.add('past');
+    if(selD&&d===selD.d&&cM===selD.mo&&cY===selD.y)e.classList.add('selected');
+    e.addEventListener('click',()=>{selD={d,mo:cM,y:cY};renderCal();calcPickup();});
+    g.appendChild(e);
+  }
+}
+document.getElementById("calPrev").addEventListener("click",()=>{cM--;if(cM<0){cM=11;cY--;}renderCal();});
+document.getElementById("calNext").addEventListener("click",()=>{cM++;if(cM>11){cM=0;cY++;}renderCal();});
+
+// ══════════════════════════════════════════
+// DROPDOWNS
+// ══════════════════════════════════════════
+function buildDropdowns(){
+  [["depH",24],["arrH",24],["pickH",24]].forEach(([id,max])=>{
+    const s=document.getElementById(id);s.innerHTML='<option value="">--</option>';
+    for(let i=0;i<max;i++)s.innerHTML+=`<option value="${i}">${pad(i)}</option>`;
+  });
+  ["depM","arrM","pickM"].forEach(id=>{
+    const s=document.getElementById(id);s.innerHTML='<option value="">--</option>';
+    for(let i=0;i<60;i+=5)s.innerHTML+=`<option value="${i}">${pad(i)}</option>`;
+  });
+}
+["depH","depM"].forEach(id=>document.getElementById(id).addEventListener("change",calcPickup));
+
+// ══════════════════════════════════════════
+// PICKUP CALC
+// ══════════════════════════════════════════
+function calcPickup(){
+  const hR=parseInt(document.getElementById("depH").value);
+  const mR=parseInt(document.getElementById("depM").value);
+  if(isNaN(hR)||isNaN(mR)||!selD)return;
+  const dh12=hR%12===0?12:hR%12,dap=hR<12?"AM":"PM";
+  const dobj=new Date(selD.y,selD.mo,selD.d);
+  const dlbl=`${DS[dobj.getDay()]}, ${selD.d} ${MS[selD.mo]} ${selD.y}`;
+  document.getElementById("depSumDate").textContent=dlbl;
+  document.getElementById("depSum24").textContent=`${pad(hR)}:${pad(mR)}`;
+  document.getElementById("depSum12").textContent=`${pad(dh12)}:${pad(mR)} ${dap}`;
+  document.getElementById("depSum").classList.add("show");
+  let pm=hR*60+mR-210,off=0;
+  if(pm<0){pm+=1440;off=-1;}
+  const ph=Math.floor(pm/60)%24,pmin=pm%60;
+  const ph12=ph%12===0?12:ph%12,pap=ph<12?"AM":"PM";
+  const pobj=new Date(selD.y,selD.mo,selD.d+off);
+  const pdlbl=`${DS[pobj.getDay()]}, ${pobj.getDate()} ${MS[pobj.getMonth()]} ${pobj.getFullYear()}`;
+  document.getElementById("pick24").textContent=`${pad(ph)}:${pad(pmin)}`;
+  document.getElementById("pick12").childNodes[0].textContent=`${pad(ph12)}:${pad(pmin)}`;
+  document.getElementById("pick12ap").textContent=" "+pap;
+  document.getElementById("pick24d").textContent=pdlbl;
+  document.getElementById("pick12d").textContent=pdlbl;
+  document.getElementById("pickupSec").classList.add("show");
+  document.getElementById("docNote").classList.add("show");
+  updateBars();
+}
+
+// ══════════════════════════════════════════
+// DUAL COUNTDOWN BARS
+// ══════════════════════════════════════════
+function fmt(ms){
+  if(ms<=0)return"Now";
+  const m=Math.floor(ms/60000),h=Math.floor(m/60),d=Math.floor(h/24);
+  if(d>0)return`${d}d ${h%24}h`;
+  if(h>0)return`${h}h ${m%60}m`;
+  return`${m}m`;
+}
+function updateBars(){
+  const hR=parseInt(document.getElementById("depH").value);
+  const mR=parseInt(document.getElementById("depM").value);
+  if(isNaN(hR)||isNaN(mR)||!selD)return;
+  const dep=new Date(selD.y,selD.mo,selD.d,hR,mR,0);
+  const pickup=new Date(dep.getTime()-210*60000);
+  const now=new Date();
+  const dDep=dep-now,dPick=pickup-now;
+  const SPAN=7*24*3600000;
+  document.getElementById("cdMain").textContent=dDep>0?fmt(dDep):"Departed";
+  const depPct=dDep>0?Math.max(2,Math.min(97,Math.round((1-dDep/SPAN)*100))):100;
+  document.getElementById("barDep").style.width=depPct+"%";
+  document.getElementById("barDepT").textContent=dDep>0?fmt(dDep):"✓";
+  const pickPct=dPick>0?Math.max(2,Math.min(97,Math.round((1-dPick/SPAN)*100))):100;
+  document.getElementById("barPickup").style.width=pickPct+"%";
+  document.getElementById("barPickupT").textContent=dPick>0?fmt(dPick):"Past";
+}
+
+// ══════════════════════════════════════════
+// ROSTER
+// ══════════════════════════════════════════
+function gf(){try{return JSON.parse(localStorage.getItem('abFlights')||'[]');}catch{return[];}}
+function sf(f){localStorage.setItem('abFlights',JSON.stringify(f));}
+function renderRoster(){
+  const flights=gf().sort((a,b)=>new Date(a.date+'T'+a.dep)-new Date(b.date+'T'+b.dep));
+  const el=document.getElementById("rosterList");
+  if(!flights.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No flights yet</div><div class="empty-sub">Tap "+ Add" to add manually,<br>or "📸 Scan" to scan your roster automatically</div></div>`;
+  } else {
+    el.innerHTML='';
+    const now=new Date();
+    flights.forEach((f,i)=>{
+      const dep=new Date(f.date+'T'+f.dep);
+      const diffMs=dep-now,diffH=Math.floor(diffMs/3600000),diffD=Math.floor(diffMs/86400000);
+      let badge='',bc='normal';
+      if(diffMs<0){badge='Departed';}
+      else if(diffD===0){badge=diffH+'h away';bc='urgent';}
+      else if(diffD<=2){badge=diffD+'d away';bc='soon';}
+      else{badge=diffD+'d away';}
+      let pickStr='';
+      if(diffMs>0){
+        const[hh,mm]=f.dep.split(':').map(Number);
+        let pm=hh*60+mm-210,po=0;if(pm<0){pm+=1440;po=-1;}
+        const ph=Math.floor(pm/60)%24,pmin=pm%60;
+        const pobj=new Date(f.date);pobj.setDate(pobj.getDate()+po);
+        pickStr=`Pickup ${pad(ph)}:${pad(pmin)} · ${DS[pobj.getDay()]} ${pobj.getDate()} ${MS[pobj.getMonth()]}`;
+      }
+      const dobj=new Date(f.date);
+      const card=document.createElement('div');
+      card.className='flight-card'+(diffD===0?' today-flight':'');
+      card.innerHTML=`
+        <div class="flight-route">${f.from}<span>→</span>${f.to}</div>
+        <div class="flight-row">
+          <span class="flight-meta-item">✈️ ${f.flightNum||'--'}</span>
+          <span class="flight-meta-item">🗓 ${DS[dobj.getDay()]} ${dobj.getDate()} ${MS[dobj.getMonth()]}</span>
+          <span class="flight-meta-item">🕐 ${f.dep}</span>
+          ${badge?`<span class="cd-badge ${bc}">${badge}</span>`:''}
+        </div>
+        ${pickStr?`<div class="flight-pickup-row">🚌 ${pickStr}</div>`:''}
+        <button class="flight-del-btn" data-i="${i}">🗑</button>`;
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.flight-del-btn').forEach(b=>{
+      b.addEventListener('click',()=>{const fs=gf();fs.splice(parseInt(b.dataset.i),1);sf(fs);renderRoster();});
+    });
+  }
+  const dof=localStorage.getItem('abDaysOff');
+  if(dof){
+    const d=new Date(dof),now2=new Date();
+    const diff=Math.ceil((d-now2)/86400000);
+    document.getElementById("daysNum").textContent=diff>0?diff:'🎉';
+    document.getElementById("daysDate").textContent=diff>0?`${DS[d.getDay()]} ${d.getDate()} ${MS[d.getMonth()]} ${d.getFullYear()}`:'Today is your day off! 🎉';
+  }
+}
+document.getElementById("saveDaysOff").addEventListener("click",()=>{
+  const v=document.getElementById("daysOffInput").value;
+  if(v){localStorage.setItem('abDaysOff',v);renderRoster();}
+});
+
+// Modal calendar
+let mY,mM,mSD=null;
+function initMCal(){
+  const n=new Date();mY=n.getFullYear();mM=n.getMonth();
+  document.getElementById("mCalDow").innerHTML=DS.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('');
+  renderMCal();
+}
+function renderMCal(){
+  document.getElementById("mCalTitle").textContent=MF[mM]+" "+mY;
+  const g=document.getElementById("mCalDays");g.innerHTML='';
+  const first=new Date(mY,mM,1).getDay(),dim=new Date(mY,mM+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=dim;d++){
+    const e=document.createElement('div');e.className='cal-day';e.textContent=d;
+    if(d===today.getDate()&&mM===today.getMonth()&&mY===today.getFullYear())e.classList.add('today');
+    if(mSD&&d===mSD.d&&mM===mSD.mo&&mY===mSD.y)e.classList.add('selected');
+    e.addEventListener('click',()=>{mSD={d,mo:mM,y:mY};renderMCal();});
+    g.appendChild(e);
+  }
+}
+document.getElementById("mCalPrev").addEventListener("click",()=>{mM--;if(mM<0){mM=11;mY--;}renderMCal();});
+document.getElementById("mCalNext").addEventListener("click",()=>{mM++;if(mM>11){mM=0;mY++;}renderMCal();});
+document.getElementById("addBtn").addEventListener("click",()=>{
+  mSD=null;initMCal();
+  ["mFrom","mTo","mDep","mFlt"].forEach(id=>document.getElementById(id).value='');
+  document.getElementById("addModal").classList.add("open");
+});
+document.getElementById("closeAdd").addEventListener("click",()=>document.getElementById("addModal").classList.remove("open"));
+document.getElementById("addModal").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+document.getElementById("saveAddBtn").addEventListener("click",()=>{
+  if(!mSD){alert("Please select a date");return;}
+  const from=document.getElementById("mFrom").value.trim().toUpperCase();
+  const to=document.getElementById("mTo").value.trim().toUpperCase();
+  const dep=document.getElementById("mDep").value.trim();
+  const fn=document.getElementById("mFlt").value.trim();
+  if(!from||!to||!dep){alert("Please fill From, To and Departure time");return;}
+  const dateStr=`${mSD.y}-${pad(mSD.mo+1)}-${pad(mSD.d)}`;
+  const flights=gf();flights.push({from,to,dep,flightNum:fn,date:dateStr});
+  sf(flights);
+  document.getElementById("addModal").classList.remove("open");
+  renderRoster();
+});
+
+// AI SCAN
+document.getElementById("scanBtn").addEventListener("click",()=>{
+  const p=document.getElementById("scanPanel");
+  p.classList.toggle("show");
+});
+document.getElementById("closeScanBtn").addEventListener("click",()=>{
+  document.getElementById("scanPanel").classList.remove("show");
+});
+document.getElementById("uploadBtn").addEventListener("click",()=>document.getElementById("rosterFile").click());
+document.getElementById("rosterFile").addEventListener("change",async function(){
+  const file=this.files[0];if(!file)return;
+  const status=document.getElementById("scanStatus");
+  const preview=document.getElementById("scanPreview");
+  const img=document.getElementById("scanImg");
+  const closeBtn=document.getElementById("closeScanBtn");
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const b64=e.target.result.split(',')[1];
+    img.src=e.target.result;preview.style.display="block";
+    status.innerHTML="<span style='color:var(--gold)'>🤖 AI is reading your roster...</span>";
+    closeBtn.style.display="none";
+    try{
+      const resp=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-6",max_tokens:1000,
+          messages:[{role:"user",content:[
+            {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
+            {type:"text",text:`Read this cabin crew flight roster image. Extract ALL flights. Return ONLY a JSON array, no markdown, no explanation. Each item: {"date":"YYYY-MM-DD","from":"XXX","to":"XXX","dep":"HH:MM","flightNum":"PA-XXX"}. Use "?" for unclear fields. Year: ${new Date().getFullYear()}.`}
+          ]}]
+        })
+      });
+      const data=await resp.json();
+      const raw=data.content.map(x=>x.text||"").join("").replace(/```json|```/g,"").trim();
+      const flights=JSON.parse(raw);
+      if(!Array.isArray(flights)||!flights.length)throw new Error("No flights found");
+      const existing=gf();let added=0;
+      flights.forEach(f=>{
+        if(f.date&&f.from&&f.to&&f.dep){
+          if(!existing.some(e=>e.date===f.date&&e.from===f.from&&e.to===f.to)){existing.push(f);added++;}
+        }
+      });
+      sf(existing);
+      status.innerHTML=`<span style='color:var(--green)'>✅ Found ${flights.length} flights — added ${added} new!</span>`;
+      closeBtn.style.display="block";renderRoster();
+    }catch(err){
+      status.innerHTML=`<span style='color:var(--red2)'>❌ Could not read. Try a clearer photo in good light.</span>`;
+      closeBtn.style.display="block";
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+// ══════════════════════════════════════════
+// CURRENCY — Live via open.er-api.com
+// ══════════════════════════════════════════
+const CM={PKR:{flag:'🇵🇰',name:'Pakistani Rupee',sym:'Rs'},SAR:{flag:'🇸🇦',name:'Saudi Riyal',sym:'SR'},AED:{flag:'🇦🇪',name:'UAE Dirham',sym:'AED'},AZN:{flag:'🇦🇿',name:'Azerbaijani Manat',sym:'₼'},USD:{flag:'🇺🇸',name:'US Dollar',sym:'$'},GBP:{flag:'🇬🇧',name:'British Pound',sym:'£'}};
+const FB={PKR:278,SAR:3.75,AED:3.67,AZN:1.70,USD:1,GBP:0.79};
+let liveRates=null,ratesFetching=false;
+async function fetchRates(){
+  if(ratesFetching)return;
+  try{
+    const c=localStorage.getItem('abRates');
+    if(c){const p=JSON.parse(c);if(Date.now()-p.ts<3600000){liveRates=p.rates;renderCurrency();return;}}
+  }catch(e){}
+  ratesFetching=true;
+  document.getElementById("currStatus").className="curr-status loading";
+  document.getElementById("currStatus").textContent="⏳ Fetching live rates...";
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/USD');
+    const d=await r.json();
+    if(d.result==='success'){
+      liveRates=d.rates;
+      localStorage.setItem('abRates',JSON.stringify({rates:d.rates,ts:Date.now()}));
+      const t=new Date().toLocaleTimeString();
+      document.getElementById("currStatus").className="curr-status live";
+      document.getElementById("currStatus").textContent=`✅ Live rates · updated ${t}`;
+    }else throw new Error();
+  }catch(e){
+    liveRates=FB;
+    document.getElementById("currStatus").className="curr-status offline";
+    document.getElementById("currStatus").textContent="⚠️ Offline — approximate rates";
+  }
+  ratesFetching=false;renderCurrency();
+}
+function renderCurrency(){
+  const amt=parseFloat(document.getElementById("currAmt").value)||0;
+  const from=document.getElementById("currFrom").value;
+  const rates=liveRates||FB;
+  const usd=amt/rates[from];
+  const g=document.getElementById("currGrid");g.innerHTML='';
+  Object.keys(CM).filter(k=>k!==from).forEach(c=>{
+    const val=usd*rates[c],m=CM[c];
+    const fmtVal=val<1?val.toFixed(4):val<100?val.toFixed(2):Math.round(val).toLocaleString();
+    g.innerHTML+=`<div class="curr-box"><div class="curr-box-top"><span class="curr-box-flag">${m.flag}</span><span class="curr-box-code">${c}</span></div><div class="curr-box-val">${m.sym} ${fmtVal}</div><div class="curr-box-name">${m.name}</div></div>`;
+  });
+}
+document.getElementById("currAmt").addEventListener("input",renderCurrency);
+document.getElementById("currFrom").addEventListener("change",renderCurrency);
+
+// ══════════════════════════════════════════
+// WEATHER — Live via Open-Meteo (fixed UV field)
+// ══════════════════════════════════════════
+const CITIES={
+  Karachi:  {lat:24.8607,lon:67.0011,city:"Karachi",country:"Pakistan",tip:"Hot & humid. Light breathable clothing. Drink water frequently."},
+  Islamabad:{lat:33.6844,lon:73.0479,city:"Islamabad",country:"Pakistan",tip:"Pleasant evenings. Carry a light jacket. Lovely weather for walking."},
+  Lahore:   {lat:31.5204,lon:74.3587,city:"Lahore",country:"Pakistan",tip:"Very hot days. Apply sunscreen. Carry water at all times."},
+  Dubai:    {lat:25.2048,lon:55.2708,city:"Dubai",country:"UAE",tip:"Extreme outdoor heat. AC available everywhere indoors."},
+  AbuDhabi: {lat:24.4539,lon:54.3773,city:"Abu Dhabi",country:"UAE",tip:"Extreme heat. Drink water frequently. Avoid midday sun."},
+  Riyadh:   {lat:24.7136,lon:46.6753,city:"Riyadh",country:"Saudi Arabia",tip:"Very dry heat. Dust storms possible. Hydrate well."},
+  Jeddah:   {lat:21.2854,lon:39.2376,city:"Jeddah",country:"Saudi Arabia",tip:"Humid coastal heat. Light breathable clothing recommended."},
+  Baku:     {lat:40.4093,lon:49.8671,city:"Baku",country:"Azerbaijan",tip:"Very windy. Carry a scarf or light jacket. Layering advised."},
+  Muscat:   {lat:23.5880,lon:58.3829,city:"Muscat",country:"Oman",tip:"Very hot. Avoid outdoor activity during midday hours."},
+};
+const WMO_DESC={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",48:"Icy fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",80:"Rain showers",81:"Heavy showers",95:"Thunderstorm",96:"Thunderstorm + hail",99:"Severe thunderstorm"};
+const WMO_ICON={0:"☀️",1:"🌤",2:"⛅",3:"☁️",45:"🌫",48:"🌫",51:"🌦",53:"🌧",55:"🌧",61:"🌦",63:"🌧",65:"⛈",71:"🌨",73:"❄️",75:"❄️",80:"🌧",81:"⛈",95:"⛈",96:"⛈",99:"⛈"};
+let wCache={};
+async function renderWeather(){
+  const dest=document.getElementById("weatherDest").value;
+  const city=CITIES[dest];if(!city)return;
+  const el=document.getElementById("weatherOut");
+  if(wCache[dest]&&Date.now()-wCache[dest].ts<1800000)return showWeather(wCache[dest].data,city);
+  el.innerHTML=`<div class="weather-loading"><div class="w-spin">🌍</div><div style="margin-top:12px;font-size:14px;font-weight:600">Loading live weather...</div></div>`;
+  try{
+    // Request weather WITHOUT uv_index first for reliability, then add it
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&wind_speed_unit=kmh&timezone=auto`;
+    const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    if(!d.current)throw new Error("No current weather data");
+    const c=d.current;
+    const data={
+      temp:Math.round(c.temperature_2m??0),
+      feels:Math.round(c.apparent_temperature??0),
+      humidity:Math.round(c.relative_humidity_2m??0),
+      wind:Math.round(c.wind_speed_10m??0),
+      code:c.weather_code??0,
+      updated:new Date().toLocaleTimeString()
+    };
+    wCache[dest]={data,ts:Date.now()};
+    showWeather(data,city);
+  }catch(err){
+    console.error("Weather error:",err);
+    el.innerHTML=`<div class="weather-loading"><div style="font-size:36px">📡</div><div style="margin-top:12px;font-size:14px;font-weight:600;color:var(--text2)">Weather unavailable</div><div style="font-size:12px;color:var(--text3);margin-top:6px">Check internet connection and try again</div><button onclick="renderWeather()" style="margin-top:14px;padding:10px 20px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🔄 Retry</button></div>`;
+  }
+}
+function showWeather(w,city){
+  const icon=WMO_ICON[w.code]||"🌡️";
+  const desc=WMO_DESC[w.code]||"--";
+  document.getElementById("weatherOut").innerHTML=`
+    <div class="weather-hero">
+      <div class="wh-city">${city.city}, ${city.country}</div>
+      <div class="wh-icon">${icon}</div>
+      <div class="wh-temp">${w.temp}°C</div>
+      <div class="wh-desc">${desc}</div>
+      <div class="wh-updated">Live · updated ${w.updated}</div>
+    </div>
+    <div class="weather-grid">
+      <div class="w-stat"><div class="w-stat-icon">🌡️</div><div class="w-stat-val">${w.feels}°C</div><div class="w-stat-lbl">Feels Like</div></div>
+      <div class="w-stat"><div class="w-stat-icon">💧</div><div class="w-stat-val">${w.humidity}%</div><div class="w-stat-lbl">Humidity</div></div>
+      <div class="w-stat"><div class="w-stat-icon">💨</div><div class="w-stat-val">${w.wind}</div><div class="w-stat-lbl">km/h Wind</div></div>
+    </div>
+    <div class="crew-tip"><span style="font-size:20px;flex-shrink:0">👗</span><span>${city.tip}</span></div>
+    <div class="weather-note">⚠️ Verify weather before travel. Cached 30 min.</div>`;
+}
+document.getElementById("weatherDest").addEventListener("change",()=>{renderWeather();});
+
+// ══════════════════════════════════════════
+// REST CALCULATOR
+// ══════════════════════════════════════════
+document.getElementById("calcRest").addEventListener("click",()=>{
+  const aH=parseInt(document.getElementById("arrH").value);
+  const aM=parseInt(document.getElementById("arrM").value);
+  const pH=parseInt(document.getElementById("pickH").value);
+  const pM=parseInt(document.getElementById("pickM").value);
+  const buf=parseInt(document.getElementById("restBuf").value)||30;
+  if(isNaN(aH)||isNaN(aM)||isNaN(pH)||isNaN(pM)){alert("Please fill all fields");return;}
+  const arrMins=aH*60+aM,pickMins=pH*60+pM;
+  let layover=pickMins-arrMins;if(layover<0)layover+=1440;
+  const restMins=layover-(buf*2);
+  const sStart=(arrMins+buf)%1440,wakeUp=(pickMins-buf+1440)%1440;
+  const sH=Math.floor(sStart/60)%24,sM=sStart%60;
+  const wH=Math.floor(wakeUp/60)%24,wM=wakeUp%60;
+  const rH=Math.floor(Math.max(0,restMins)/60),rM=Math.max(0,restMins)%60;
+  document.getElementById("restDur").textContent=restMins>0?`${rH}h ${rM}m`:"No rest!";
+  document.getElementById("restSubText").textContent=restMins>0?`Total layover: ${Math.floor(layover/60)}h ${layover%60}m`:"Layover too short";
+  document.getElementById("restFrom").textContent=pad(sH)+":"+pad(sM);
+  document.getElementById("restTo").textContent=pad(wH)+":"+pad(wM);
+  let advice=restMins<120?"Very short rest. Nap immediately on arrival. Set multiple alarms.":restMins<240?"Short rest. Avoid caffeine 4h before. Sleep right away.":restMins<360?"Moderate rest. Keep room dark and cool. Avoid heavy meals.":"Good rest window! Aim for 90-min sleep cycles. Stay hydrated.";
+  document.getElementById("restAdvice").textContent=advice;
+  document.getElementById("restResult").classList.add("show");
+});
+
+// ══════════════════════════════════════════
+// CHECKLIST
+// ══════════════════════════════════════════
+const CL=[
+  {cat:"Documents",items:["Passport (valid 6+ months)","National ID card","Airblue crew ID","Medical certificate","Crew license copy"]},
+  {cat:"Uniform",items:["Full uniform pressed & clean","Name badge","Scarf / accessories per SOP","Approved shoes","Spare stockings/socks"]},
+  {cat:"Briefing",items:["Pre-flight briefing reviewed","Route & aircraft type noted","Emergency procedures checked","Catering specs noted"]},
+  {cat:"Personal",items:["Phone fully charged","Crew bag packed","Water bottle & snacks","Currency for destination","Hotel confirmation"]},
+  {cat:"Health",items:["Sufficient rest (8h+)","Medications packed","Sanitizer / wipes","Face mask available"]},
+];
+function gck(){try{return JSON.parse(localStorage.getItem('abCk')||'{}');}catch{return{};}}
+function sck(c){localStorage.setItem('abCk',JSON.stringify(c));}
+function buildCL(){
+  const checks=gck();const el=document.getElementById("ckList");el.innerHTML='';
+  let total=0,done=0;
+  CL.forEach(sec=>{
+    const sd=document.createElement('div');
+    sd.innerHTML=`<div class="check-section-hd">${sec.cat}</div>`;
+    sec.items.forEach(item=>{
+      total++;const key=sec.cat+'::'+item;const ck=checks[key]||false;if(ck)done++;
+      const row=document.createElement('div');row.className='check-item';
+      row.innerHTML=`<div class="check-box-ui${ck?' done':''}"></div><div class="check-item-lbl${ck?' done':''}">${item}</div>`;
+      row.addEventListener('click',()=>{const c=gck();c[key]=!c[key];sck(c);buildCL();});
+      sd.appendChild(row);
+    });
+    el.appendChild(sd);
+  });
+  document.getElementById("ckDone").textContent=done;
+  document.getElementById("ckTotal").textContent=total;
+  document.getElementById("ckBar").style.width=Math.round(done/total*100)+"%";
+}
+document.getElementById("ckReset").addEventListener("click",()=>{if(confirm("Reset all checklist items?")){sck({});buildCL();}});
+
+// ══════════════════════════════════════════
+// ROUTES
+// ══════════════════════════════════════════
+const ROUTES=[
+  {from:"KHI",to:"ISB",name:"Karachi → Islamabad",dur:"1h 45m",freq:"Multiple daily",code:"PA-100s"},
+  {from:"KHI",to:"LHE",name:"Karachi → Lahore",dur:"1h 50m",freq:"Multiple daily",code:"PA-200s"},
+  {from:"KHI",to:"DXB",name:"Karachi → Dubai",dur:"2h 15m",freq:"Daily",code:"PA-201/202"},
+  {from:"KHI",to:"AUH",name:"Karachi → Abu Dhabi",dur:"2h 25m",freq:"Weekly",code:"PA-203"},
+  {from:"KHI",to:"RUH",name:"Karachi → Riyadh",dur:"3h 10m",freq:"Weekly",code:"PA-210"},
+  {from:"KHI",to:"JED",name:"Karachi → Jeddah",dur:"3h 30m",freq:"Weekly",code:"PA-215"},
+  {from:"LHE",to:"DXB",name:"Lahore → Dubai",dur:"2h 30m",freq:"Daily",code:"PA-220"},
+  {from:"ISB",to:"DXB",name:"Islamabad → Dubai",dur:"2h 45m",freq:"Daily",code:"PA-230"},
+  {from:"KHI",to:"GYD",name:"Karachi → Baku",dur:"3h 45m",freq:"Weekly",code:"PA-240"},
+  {from:"KHI",to:"MCT",name:"Karachi → Muscat",dur:"2h 5m",freq:"Weekly",code:"PA-250"},
+  {from:"ISB",to:"RUH",name:"Islamabad → Riyadh",dur:"3h 20m",freq:"Weekly",code:"PA-260"},
+];
+function buildRoutes(){
+  const el=document.getElementById("routesList");el.innerHTML='';
+  ROUTES.forEach(r=>{
+    el.innerHTML+=`<div class="route-card"><div class="route-airports">${r.from}<span>→</span>${r.to}</div><div class="route-meta-row"><span class="badge badge-blue">⏱ ${r.dur}</span><span class="badge badge-red">${r.code}</span><span class="badge" style="background:var(--bg4);color:var(--text3)">${r.freq}</span></div><div style="font-size:12px;color:var(--text3);margin-top:6px">${r.name}</div></div>`;
+  });
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+initCal();
+buildDropdowns();
+buildCL();
+buildRoutes();
+renderRoster();
+renderCurrency();
+updateClocks();
+setInterval(updateClocks,1000);
+fetchRates();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
